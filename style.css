@@ -1,0 +1,147 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 300,
+  'GRAD' 0,
+  'opsz' 36
+}
+
+body {
+  overflow: hidden;
+  font-family: 'Inter', system-ui, 'Segoe UI';
+}
+
+.container-custom {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar-custom h2 {
+  margin: 15px;
+}
+
+.sidebar-custom hr {
+  margin: 20px 10px;
+}
+
+.sidebar-custom {
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  background-color: #212C42;
+  color: #ffffff;
+  height: 100vh;
+}
+
+.nav-custom {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item-custom a {
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 20px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  justify-content: space-between;
+}
+
+.nav-link-custom.active-custom{
+    background-color: #F4F4F4;
+    color: black;
+}
+
+.nav-link-custom:hover {
+    background-color: #F4F4F4;
+    color: black;
+}
+
+.bottom-custom {
+  margin-top: auto;
+  margin-bottom: 15px;
+}
+
+.cards-container-custom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: start;
+  padding: 10px;
+}
+
+.card-custom {
+  background-color: #d9d9d9;
+  padding: 10px;
+  width: calc(33.333% - 20px); /* 3 por fila, con espacio */
+  min-width: 200px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.card-custom:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.card-custom .subtitle {
+  display: block;
+  color: #5A5A5A;
+  font-size: 12;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.card-custom .options {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+}
+
+.card-custom .options .material-symbols-outlined {
+  font-size: 30;
+}
+
+.card-custom .options a {
+  text-decoration: none;
+  color: #484848;
+  padding: 5px;
+}
+
+.card-custom .options a:hover {
+  color: #ffffff;
+  background-color: #212C42;
+}
+
+.card-custom .options .delete-card:hover{
+  background-color: brown;
+}
+
+.main-content-custom {
+  flex: 1;
+  padding: 10px 20px;
+  background-color: #F4F4F4;
+}
+
+.main-content-custom h1 {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.config-line {
+  margin-top: 10px;
+  margin-right: 25px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
