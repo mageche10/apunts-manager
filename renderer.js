@@ -1,10 +1,8 @@
 const contenido = document.getElementById('contenido');
-var assignatures = null
 
 //Carrega de la funcionalitat de la barra de navegació
 document.addEventListener('DOMContentLoaded', async () => {
-    const data = await window.api.getSubjectsData()
-    assignatures = data.assignatures
+    const assignatures = await window.api.getSubjectsData()
 
     const nav = document.getElementById("nav-subjects")
     nav.innerHTML = ''
@@ -18,10 +16,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         a.classList.add("nav-link-custom")
         a.dataset.seccion = subject.abb
         a.textContent = subject.nom
+        a.addEventListener('click', (e) => {
+            cargarAssignatura(subject)
+        })
 
         li.appendChild(a);
         nav.appendChild(li);
     });
+
+    configLink = document.getElementById("configLink").addEventListener('click', () => {
+        cargarConfig(assignatures)
+    })
 
     links = document.querySelectorAll('.nav-link-custom')
     links.forEach(link => {
@@ -30,22 +35,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             links.forEach(l => l.classList.remove('active-custom'))
             link.classList.add('active-custom')
-            
-            if (link.dataset.seccion == 'config') {
-                cargarConfig();
-            } else {
-                contenido.innerHTML = `<h1> ${link.dataset.seccion}</h1>`
-                // cargarTarjetas() -> carregar cada tarjeta amb un apunt
-            }
         })
     })
 })
 
-function cargarConfig(){
+async function cargarAssignatura(assignatura) {
+    contenido.innerHTML = `<h1> ${assignatura.nom}</h1>`
+    temes = await window.api.getAllTemes(assignatura.abb)
+
+    temes.forEach((tema) => {
+        //Afegir cada card
+    })
+}
+
+async function cargarConfig(assignatures){
+    const dataPath = await window.api.getDataPath()
     contenido.innerHTML = `
         <h1>Configuración</h1>
         <div class=config-line>Editar assignatures <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditSubjects"> Editar </button> </div>
+        <div class=config-line> <span id="dataPathLine">Ruta a la carpeta d'apunts: ${dataPath} </span><button id="dataDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
     `
+
+    document.getElementById('dataDirectorySelector').addEventListener('click', async () => {
+        const path = await window.api.openDirectorySelector()
+        if (path != null) {
+            window.api.saveDataPath(path)
+            document.getElementById("dataPathLine").innerText = `Ruta a la carpeta d'apunts: ${path}`
+        }
+    })
+
 
     //Cargar el modal al darle a editar asignaturas
     const editSubjectsModalBody = document.getElementById('modalBodyEditSubjects')
@@ -73,22 +91,20 @@ function cargarConfig(){
         })
     })
 
-    //Guardar assignaturas - FALTA CREAR CARPETAS Y ARCHIVOS
+    //Guardar assignaturas
     document.getElementById("saveSubjectsBtn").addEventListener('click', async () => {
-        //Guardar las assignaturas -> Actualizar la pagina principal -> Crear carpetas y archivos nuevos (igual hacer esto con un async function y un boton de espera)
         abreviacions = Array.from(document.getElementsByName("abb")).map(i => i.value);
         noms = Array.from(document.getElementsByName("nom")).map(i => i.value);
         if (new Set(abreviacions).size == abreviacions.length && !abreviacions.includes("")) {
-            const obj = {
-                "assignatures": []
-            }
+            const subjects = []
             for (let n = 0; n < noms.length; n++) {
-                obj.assignatures.push({
-                    "nom": noms[n],
-                    "abb": abreviacions[n]
+                subjects.push({
+                    nom: noms[n],
+                    abb: abreviacions[n]
                 })
             }
-            const result = await window.api.saveSubjectsData(obj)
+            const result = await window.api.saveSubjectsData(subjects)
+
             if (result) {
                 bootstrap.Modal.getOrCreateInstance(editSubjectsModal).hide()
                 location.reload();

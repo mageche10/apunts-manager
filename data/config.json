@@ -1,0 +1,25 @@
+{
+  "assignatures": [
+    {
+      "nom": "Física II",
+      "abb": "FIS II"
+    },
+    {
+      "nom": "Càlcul II",
+      "abb": "CAL II"
+    },
+    {
+      "nom": "Mètodes Matemàtics I",
+      "abb": "MM I"
+    },
+    {
+      "nom": "Química Orgànica",
+      "abb": "QO"
+    },
+    {
+      "nom": "Biofísica I",
+      "abb": "BIO I"
+    }
+  ],
+  "dataPath": "C:\\Users\\magec\\Documents\\dataApunts"
+}

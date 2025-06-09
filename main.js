@@ -1,9 +1,13 @@
-const { app, BrowserWindow, ipcMain } = require("electron/main")
+const { app, BrowserWindow, ipcMain, dialog } = require("electron/main")
 const path = require('path')
-const fs = require('fs')
+
+const ConfigManager = require('./configManager')
+const TemesManager = require('./temesManager')
+
+let win
 
 const createWindow = () => {
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 1050,
         height: 700,
         webPreferences: {
@@ -17,21 +21,30 @@ const createWindow = () => {
     win.loadFile('index.html')
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+    await ConfigManager.checkFile();
     ipcMain.handle('getSubjectsData', () => {
-        const filePath = path.join(__dirname, 'data/assignatures.json')
-        const rawData = fs.readFileSync(filePath, "utf-8")
-        const obj = JSON.parse(rawData)
-        return obj
+        return ConfigManager.getSubjectsData()
     })
     ipcMain.handle('saveSubjectsData', async (event, data) => {
-        try {
-            const filePath = path.join(__dirname, 'data/assignatures.json')
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
-            return true
-        } catch (err) {
-            return false
+        return ConfigManager.saveSubjectsData(data)
+    })
+    ipcMain.handle('getDataPath', () => ConfigManager.getDataPath())
+    ipcMain.handle('saveDataPath', (event, data) => ConfigManager.saveDataPath(data))
+
+    ipcMain.handle('getAllTemes', async (event, data) => {
+        const temes = await TemesManager.getAllTemes(data)
+        return temes
+    })
+
+    ipcMain.handle('openDirectorySelector', async () => {
+        const result = await dialog.showOpenDialog(win, {properties: ['openDirectory', 'createDirectory']})
+        if (result.canceled) {
+            return null
+        } else {
+            return result.filePaths[0]
         }
     })
+
     createWindow()
 })

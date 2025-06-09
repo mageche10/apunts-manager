@@ -131,6 +131,7 @@ body {
   flex: 1;
   padding: 10px 20px;
   background-color: #F4F4F4;
+  max-width: 100%;
 }
 
 .main-content-custom h1 {
@@ -141,7 +142,8 @@ body {
 .config-line {
   margin-top: 10px;
   margin-right: 25px;
-  width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
