@@ -10,11 +10,23 @@ const configTemplate = {
         }
     ],
     dataPath: "",
+    VSEnvPath: ""
 }
 
 const ConfigManager = {
     getAllConfig (){
         return JSON.parse(fs.readFileSync(configPath, "utf-8"))
+    },
+
+    changeEntry (entry, value){
+        try {
+            configObj = this.getAllConfig()
+            configObj[entry] = value
+            fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2))
+            return true
+        } catch (err) {
+            return false
+        }
     },
 
     async checkFile() {
@@ -28,14 +40,15 @@ const ConfigManager = {
     },
 
     saveDataPath (path) {
-        try {
-            configObj = this.getAllConfig()
-            configObj.dataPath = path
-            fs.writeFileSync(configPath, JSON.stringify(configObj, null, 2))
-            return true
-        } catch (err) {
-            return false
-        }
+        this.changeEntry("dataPath", path)
+    },
+
+    getVSEnvPath (){
+        return this.getAllConfig().VSEnvPath
+    },
+
+    saveVSEnvPath (path) {
+        this.changeEntry("VSEnvPath", path)
     },
 
     getSubjectsData() {
@@ -54,6 +67,5 @@ const ConfigManager = {
         }
     }
 }
-
 
 module.exports = ConfigManager;

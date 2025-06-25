@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
+const { exec } = require("child_process")
 const ConfigManager = require('./configManager')
 
 const TemesManager = {
@@ -28,6 +29,73 @@ const TemesManager = {
             })
         }
         return temes
+    },
+
+    editarTema(index, subjectCode) {
+        const userDataDir = path.join(ConfigManager.getVSEnvPath(), 'user-data')
+        const extensionsDir = path.join(ConfigManager.getVSEnvPath(), 'extensions' )
+        const dirPath = path.join(ConfigManager.getDataPath(), subjectCode)
+        const filePath = path.join(dirPath, `tema${String(index).padStart(2, '0')}.tex`)
+        const masterPath = path.join(dirPath, "master.tex")
+
+        this.editarMaster([index], masterPath)
+
+        const cmd = `code "${dirPath}" --goto "${filePath}" "${masterPath}" --user-data-dir=${userDataDir} --extensions-dir=${extensionsDir}`
+        exec(cmd)
+    },
+
+    editarMaster(indexTemas, masterPath) {
+        let nuevoContenido = []
+        indexTemas.forEach(index => {
+            nuevoContenido.push(`    \\input{tema${String(index).padStart(2, '0')}.tex}`)
+        });
+        nuevoContenido = nuevoContenido.join('\n')
+
+        let tex = fs.readFileSync(masterPath, 'utf-8')
+        const regex = /(% start lectures)([\s\S]*?)(% end lectures)/;
+
+        tex = tex.replace(regex, `$1\n${nuevoContenido}\n    $3`)
+        fs.writeFileSync(masterPath, tex, 'utf-8')
+    },
+
+    newTema(index, subjectAbb){
+        const dirPath = path.join(ConfigManager.getDataPath(), subjectAbb)
+        const temaPath = path.join(dirPath, `tema${String(index).padStart(2, '0')}.tex`)
+
+        //this.editarTema(index, subjectAbb)
+    },
+
+    async verTema(index, subjectCode){
+        const dirPath = path.join(ConfigManager.getDataPath(), subjectCode)
+        const masterPath = path.join(dirPath, "master.tex")
+        const pdfPath = path.join(dirPath, "master.pdf")
+
+        this.editarMaster([index], masterPath)
+
+        const execPromise = (cmd, opts = {}) => {
+            return new Promise((resolve, reject) => {
+                exec(cmd, opts, (error, stdout, stderr) => {
+                    if (error) {
+                        reject(stderr || error.message)
+                    } else {
+                        resolve(true)
+                    }
+                })
+            })
+        }
+        
+        try{
+            const cmdCompile = `latexmk -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
+            await execPromise(cmdCompile, {cwd: dirPath})
+
+            const cmdSumatra = `"C:\\Program Files\\SumatraPDF\\SumatraPDF.exe" "${pdfPath}"`
+            exec(cmdSumatra)
+
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
     },
 
     async readFirstLine(ruta) {

@@ -41,18 +41,8 @@
     
     
             <div class="main-content-custom" id="contenido">
-                <h1>Bienvenido</h1>
-                <div class="cards-container-custom">
-                    <div class="card-custom">
-                        Tema 1 <p class="subtitle">Ones i fenomens ondulatoris i introduccio</p> 
-                        <div class="options">
-                            <a href="#" class="edit-card"><span class="material-symbols-outlined">edit</span></a>
-                            <a href="#" class="more-card"><span class="material-symbols-outlined">more_horiz</span></a>
-                            <a href="#" class="delete-card"><span class="material-symbols-outlined">delete</span></a>
-                        </div>
-                    </div>
-                    <div class="card-custom">Tema 2</div>
-                    <div class="card-custom">Tema 3</div>
+                <div class="mainPlaceholder">
+                    <h3>Selecciona una assignatura per començar</h1>
                 </div>
             </div>
         </div>
@@ -75,11 +65,30 @@
             </div>
         </div>
 
+        <!-- Modal Confirmar/abortar -->
+        <div id="modalConfirmarAbortar" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="titleModalConfirmar" class="modal-title">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="bodyModalConfirmar" class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnDangerModalConfirmar" class="btn btn-danger" data-bs-dismiss="modal">Danger</button>
+                        <button type="button" id="btnSecondaryModalConfirmar" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·lar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Toasts -->
-        <div style="z-index: 2000;" id="duplicateSubjectToast" class="toast align-items-center text-bg-danger border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
+        <div style="z-index: 2000;" id="errorToast" class="toast align-items-center text-bg-danger border-0 position-fixed bottom-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
-                <div class="toast-body">
-                    No poden haver assignatures amb codis duplicats o buïts.
+                <div id="errorToastText" class="toast-body">
+                    
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
                     aria-label="Close"></button>
