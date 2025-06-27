@@ -2,10 +2,16 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('api', {
     getAllTemes: (data) => ipcRenderer.invoke('getAllTemes', data),
+    initSubject: (subjectCode) => ipcRenderer.invoke("initSubject", subjectCode),
 
-    editarTema: (index, subjectArg) => ipcRenderer.invoke("editarTema", index, subjectArg),
-    verTema: (index, subjectArg) => ipcRenderer.invoke("verTema", index, subjectArg),
-    newTema: (index, subjectArg) => ipcRenderer.invoke("newTema", index, subjectArg)
+    editarTema: (index, subjectCode) => ipcRenderer.invoke("editarTema", index, subjectCode),
+    verTema: (index, subjectCode) => ipcRenderer.invoke("verTema", index, subjectCode),
+    newTema: (index, subject) => ipcRenderer.invoke("newTema", index, subject),
+    borrarTema: (index, subjectCode) => ipcRenderer.invoke("borrarTema", index, subjectCode),
+
+    getErrates: (subjectCode) => ipcRenderer.invoke('getErrates', subjectCode),
+    saveErrates: (subjectCode, data) => ipcRenderer.invoke('saveErrates', subjectCode, data),
+    compileErrates: () => ipcRenderer.invoke('compileErrates')
 })
 
 contextBridge.exposeInMainWorld('configApi', {
@@ -15,6 +21,8 @@ contextBridge.exposeInMainWorld('configApi', {
     saveDataPath: (data) => ipcRenderer.invoke('saveDataPath', data),
     getVSEnvPath: () => ipcRenderer.invoke('getVSEnvPath'),
     saveVSEnvPath: (data) => ipcRenderer.invoke('saveVSEnvPath', data),
+    getDefaultOutputPath: () => ipcRenderer.invoke('getDefaultOutputPath'),
+    saveDefaultOutputPath: (data) => ipcRenderer.invoke('saveDefaultOutputPath', data),
 
     openDirectorySelector: (initialPath) => ipcRenderer.invoke('openDirectorySelector', initialPath)
 })

@@ -31,6 +31,9 @@
                 <hr>
                 <ul class="nav-custom">
                     <li class="nav-item-custom">
+                        <button id="compilarErratesBtn">Compilar errates <div id="compilarEntradesIcon"><span class="material-symbols-outlined">file_export</span></div></button>
+                    </li>
+                    <li class="nav-item-custom">
                         <a id="configLink" href="#" class="nav-link-custom" data-seccion="config">
                             Configuració <span class="material-symbols-outlined">settings</span>
                         </a> 
@@ -43,24 +46,6 @@
             <div class="main-content-custom" id="contenido">
                 <div class="mainPlaceholder">
                     <h3>Selecciona una assignatura per començar</h1>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modals -->
-        <div id="modalEditSubjects" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Editar assignatures</h5>
-                    </div>
-                    <div class="modal-body" id="modalBodyEditSubjects">
-                        
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Descartar</button>
-                        <button type="button" class="btn btn-primary" id="saveSubjectsBtn">Guardar</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -78,6 +63,24 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" id="btnDangerModalConfirmar" class="btn btn-danger" data-bs-dismiss="modal">Danger</button>
+                        <button type="button" id="btnSecondaryModalConfirmar" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·lar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modalSeleccio" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="titleModalSeleccio" class="modal-title">Modal title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div id="bodyModalSeleccio" class="modal-body">
+                        <p>Modal body text goes here.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="btnSeleccioModalConfirmar" class="btn btn-primary" data-bs-dismiss="modal">Confirmar</button>
                         <button type="button" id="btnSecondaryModalConfirmar" class="btn btn-secondary" data-bs-dismiss="modal">Cancel·lar</button>
                     </div>
                 </div>

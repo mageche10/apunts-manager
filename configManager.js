@@ -1,7 +1,11 @@
+const { app } = require('electron')
 const fs = require('fs')
 const path = require('path')
 
-const configPath = path.join(__dirname, '/data/config.json') //cambiar por path.join(app.getPath('userData'), 'config.json'); una vez en produccion
+//TODO: marcar el config como extrafiles en electron builder
+//No es la millor manera utilitzar resourcesPath pero prefereixo aixo que no tenir la config en el roaming perduda
+const configPath = app.isPackaged ? path.join(process.resourcesPath, 'config.json') : path.join(__dirname, '/data/config.json') 
+
 const configTemplate = {
     assignatures: [
         {
@@ -10,7 +14,8 @@ const configTemplate = {
         }
     ],
     dataPath: "",
-    VSEnvPath: ""
+    VSEnvPath: "",
+    DefaultOutputPath: ""
 }
 
 const ConfigManager = {
@@ -49,6 +54,14 @@ const ConfigManager = {
 
     saveVSEnvPath (path) {
         this.changeEntry("VSEnvPath", path)
+    },
+
+    getDefaultOutputPath (){
+        return this.getAllConfig().DefaultOutputPath
+    },
+
+    saveDefaultOutputPath (path) {
+        this.changeEntry("DefaultOutputPath", path)
     },
 
     getSubjectsData() {

@@ -1,0 +1,10 @@
+Immediat:
+ -Acabar de generar el arxiu de fe d'errates
+ -Comprovar funcionalitat
+
+Necessari:
+ -Figures a la app i a VSCode
+ -Arreglar modals que falten -> millorar arquitectura (posar a HTML constants)
+
+No neccesari - algun dia:
+ -Color d'asignatures

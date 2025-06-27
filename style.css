@@ -39,7 +39,7 @@ body {
 }
 
 .sidebar-custom {
-  width: 250px;
+  width: 285px;
   display: flex;
   flex-direction: column;
   background-color: #2852a7;
@@ -63,6 +63,25 @@ body {
   text-transform: uppercase;
   letter-spacing: 3px;
   justify-content: space-between;
+}
+
+.nav-item-custom button {
+  display: flex;
+  align-items: center;
+  color: white;
+  border: none;
+  background-color: transparent;
+  font-weight: 600;
+  padding: 0.5rem 20px;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  justify-content: space-between;
+}
+
+.nav-item-custom button:hover {
+  background-color: #F4F4F4;
+  color: black;
 }
 
 .nav-link-custom.active-custom{
@@ -158,15 +177,22 @@ body {
   letter-spacing: 1px;
 }
 
-.btnTemaAdd {
+.floatingBtn {
   bottom: 15px;
-  right: 20px;
   z-index: 10;
   padding: 5px;
   border-radius: 12px;
 }
 
-.btnTemaAdd .material-symbols-outlined {
+.btnTemaAdd {
+  right: 20px;
+}
+
+.btnErratas {
+  right: 90px;
+}
+
+.floatingBtn .material-symbols-outlined {
   font-size: 42;
 }
 
