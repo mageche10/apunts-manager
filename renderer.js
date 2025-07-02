@@ -119,6 +119,13 @@ async function cargarAssignatura(assignatura) {
                     mostrarErrorToast("No poden haver errates sense text descriptiu")
                 }
             })
+
+            // Carregar botó de compilar tot i el seu modal
+            const btnCompile = document.createElement("button")
+            btnCompile.classList.add('btn', 'btn-primary', "position-absolute", "btnCompileAll", "floatingBtn")
+            btnCompile.innerHTML = `<span class="material-symbols-outlined">menu_book</span>`
+            btnCompile.addEventListener('click', () => showCompileAllModal(assignatura))
+            contenido.append(btnCompile)
         }
 
         void contenido.offsetWidth
@@ -201,6 +208,60 @@ async function showErratasModal(subjectCode) {
     })
 
     bootstrap.Modal.getOrCreateInstance(erratesModal).show()
+}
+
+function showCompileAllModal(assignatura) {
+    contenido.insertAdjacentHTML('beforeend', HTMLconstants.modalCompileAll(assignatura))
+
+    const compileAllModal = document.getElementById('modalCompileAll')
+    const body = document.getElementById('modalBodyCompileAll')
+    const BSModal = bootstrap.Modal.getOrCreateInstance(compileAllModal)
+
+    async function genericCompile (specificCompile) {
+        document.getElementById("btnModalCompileClose").remove()
+
+        const ciutat = document.getElementsByName('ciutat')[0].checked ? "barcelona" : "terrassa"
+
+        body.innerHTML = `<div class="spinner-border" style="width: 4rem; height: 4rem;" role="status">
+            <span class="sr-only"></span>
+        </div>`
+        body.classList.add('d-flex', 'justify-content-center', 'align-items-center')
+        
+        const result = await specificCompile(ciutat)
+
+        if (result != true) {
+            mostrarErrorToast(`No s'ha pogut generar el pdf: ${result}`)
+        }
+
+        BSModal.hide()
+        compileAllModal.remove()
+        BSModal.dispose()
+    }
+
+    document.getElementById('compileSubject').addEventListener('click', () => {
+        genericCompile(async () => {
+            return await window.api.generarApunts(assignatura, false)
+        }) 
+    })
+    document.getElementById('compileSubjectCover').addEventListener('click', () => {
+        genericCompile(async (ciutat) => {
+            return await window.api.generarApunts(assignatura, true, ciutat)
+        })
+    })
+    document.getElementById('compileAll').addEventListener('click', () => {
+        genericCompile(async () => {
+            const result = await window.api.generarApuntsAll(false)
+            console.log(result)
+            return result
+        })
+    })
+    document.getElementById('compileAllCover').addEventListener('click', () => {
+        genericCompile(async (ciutat) => {
+            return await window.api.generarApuntsAll(true, ciutat)
+        })
+    })
+
+    BSModal.show()
 }
 
 function createCardTema(tema, subject) {
@@ -436,5 +497,34 @@ const HTMLconstants = {
       </div>
       <div class="col-1"><button type="button" class="btn-close deleteErrata" ></button></div>
     </div>`
-    }
+    },
+
+    modalCompileAll(assignatura){
+        return `<div id="modalCompileAll" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Generar Apunts</h5>
+                        <button id="btnModalCompileClose" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBodyCompileAll">
+                        <button id="compileSubject" type="button" class="btn btn-primary w-100 mb-2">Generar apunts - ${assignatura.nom}</button>
+                        <button id="compileSubjectCover" type="button" class="btn btn-primary w-100 mb-2">Generar apunts amb tapa - ${assignatura.nom}</button>
+                        <button id="compileAll" type="button" class="btn btn-primary w-100 mb-2">Generar apunts - Totes les assignatures</button>
+                        <button id="compileAllCover" type="button" class="btn btn-primary w-100 mb-2">Generar tots els apunts junts, pdf final.</button>
+
+                        <div class="d-flex flex-row justify-content-between px-2 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="ciutat" id="ciutat1" value="barcelona" checked>
+                            <label class="form-check-label" for="exampleRadios1">Barcelona - Física</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="ciutat" id="ciutat2" value="terrassa" checked>
+                            <label class="form-check-label" for="exampleRadios1">Terrassa - Aeros</label>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`},
 }

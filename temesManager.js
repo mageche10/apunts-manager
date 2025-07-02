@@ -4,9 +4,25 @@ const readline = require('readline')
 const { exec } = require("child_process")
 const ConfigManager = require('./configManager')
 const { app } = require('electron')
+const { PDFDocument } = require('pdf-lib');
 
 
 const erratasPath = app.isPackaged ? path.join(process.resourcesPath, 'erratas.json') : path.join(__dirname, '/data/erratas.json')
+const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "master.tex") : path.join(__dirname, "master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
+const tapaDirectoryPath = app.isPackaged ? process.resourcesPath : path.join(__dirname, '/data/')
+const tapaPath = app.isPackaged ? path.join(process.resourcesPath, "tapa.tex") : path.join(__dirname, "/data/tapa.tex")
+
+const execPromise = (cmd, opts = {}) => {
+    return new Promise((resolve, reject) => {
+        exec(cmd, opts, (error, stdout, stderr) => {
+            if (error) {
+                reject(stderr || error.message)
+            } else {
+                resolve(true)
+            }
+        })
+    })
+}
 
 const TemesManager = {
     pad(num) {
@@ -21,7 +37,6 @@ const TemesManager = {
             fs.mkdirSync(path.join(dirPath, "figures"))
 
             // En algun moment, selector de colors => estaria be al menu posar el color de la asignatura corresponent
-            const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "master.tex") : path.join(__dirname, "master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
             fs.copyFileSync(masterTemplatePath, path.join(dirPath, "master.tex"))
         } catch (err) {
             return false
@@ -37,11 +52,11 @@ const TemesManager = {
         }
 
         const temes = []
-        const files = fs.readdirSync(folder).filter((file) => file.startsWith("tema"))
+        const files = fs.readdirSync(folder).filter((file) => file.startsWith("tema") && file.endsWith('.tex'))
         
         for (const file of files){
             firstLine = await this.readFirstLine(path.join(folder, file))
-
+            
             const match = firstLine.match(/\\lecture\{.*?\}\{.*?\}\{(.*?)\}/);
             title = match[1]
 
@@ -128,17 +143,7 @@ const TemesManager = {
 
         this.editarMaster([index], masterPath)
 
-        const execPromise = (cmd, opts = {}) => {
-            return new Promise((resolve, reject) => {
-                exec(cmd, opts, (error, stdout, stderr) => {
-                    if (error) {
-                        reject(stderr || error.message)
-                    } else {
-                        resolve(true)
-                    }
-                })
-            })
-        }
+        
         
         try{
             const cmdCompile = `latexmk -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
@@ -191,22 +196,29 @@ const TemesManager = {
     },
 
     async compileErrates(outputPath) {
-        const execPromise = (cmd, opts = {}) => {
-            return new Promise((resolve, reject) => {
-                exec(cmd, opts, (error, stdout, stderr) => {
-                    if (error) {
-                        reject(stderr || error.message)
-                    } else {
-                        resolve(true)
-                    }
+        const filepath = path.join(outputPath, 'errates.tex')
+
+        var content = erratesHeader
+
+        const subjects = ConfigManager.getSubjectsData()
+        subjects.forEach(subject => {
+            const erratesSubject = this.getErrates(subject.abb)
+            if (erratesSubject.length != 0){
+                content = content.concat(`
+                    \\subsection*{${subject.nom}}
+                    
+                    \\begin{itemize}
+                    `)
+
+                erratesSubject.forEach(errada => {
+                    content = content.concat(`\\item ${errada.errada} - \\textbf{Pág ${errada.pag}} \n`)
                 })
-            })
-        }
+                content = content.concat(`\n \\end{itemize}\n`)
+            }
+        });
 
-        console.log("S'ha d'implementar la generació del arxiuuuuu")
-        const filepath = path.join(outputPath, 'tmp.tex')
-
-        const content = "a"
+        content = content.concat(erratesFooter)
+        
         fs.writeFileSync(filepath, content)
 
         try {
@@ -214,14 +226,104 @@ const TemesManager = {
             await execPromise(cmdCompile, {cwd: outputPath})
 
             fs.unlinkSync(filepath)
-            // TODO: S'ha de borrar tots els arxius que se generin en la compilacio de Latex ------------------
+            fs.unlinkSync(path.join(outputPath, "errates.aux"))
+            fs.unlinkSync(path.join(outputPath, "errates.fls"))
+            fs.unlinkSync(path.join(outputPath, "errates.log"))
+            fs.unlinkSync(path.join(outputPath, "errates.fdb_latexmk"))
+
+            const cmdSumatra = `"C:\\Program Files\\SumatraPDF\\SumatraPDF.exe" "${path.join(outputPath, "errates.pdf")}"`
+            exec(cmdSumatra)
 
             return true
         } catch (e) {
             console.log(e)
             return false
         }
+    },
+
+    async generarAssignatura(subject, tapa, ciutat) {
+        try {
+            const dirPath = path.join(ConfigManager.getDataPath(), subject.abb)
+            const masterPath = path.join(dirPath, "master.tex")
+            const masterPDFPath = path.join(dirPath, 'master.pdf')
+            const outputDir = ConfigManager.getDefaultOutputPath()
+
+            const temes = await this.getAllTemes(subject.abb)
+            const indexes = Array.from({ length: temes.length }, (_, i) => i + 1)
+            this.editarMaster(indexes, masterPath)
+
+            const cmdCompile = `latexmk -f -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
+            await execPromise(cmdCompile, {cwd: dirPath})
+
+            if (tapa) {
+                const resultTapa = await this.editarCompilarTapa(subject, ciutat)
+                if (resultTapa) {
+                    const tapaPath = path.join(dirPath, 'tapa.pdf')
+
+                    await this.mergePDFs([tapaPath, masterPDFPath], masterPDFPath)
+                } else {
+                    throw e
+                }
+            }
+
+            const outputPath = path.join(outputDir, `Apunts ${subject.nom}.pdf`)
+            fs.copyFileSync(masterPDFPath, outputPath)
+
+            return true
+        } catch (e) {
+            return e
+        }
+    },
+    
+    async editarCompilarTapa(subject, ciutat) {
+        const LINEA_NOM_ASSIGNATURA = 29
+        const LINEA_CIUTAT = 47
+
+        try {
+            const file = fs.readFileSync(tapaPath, 'utf-8')
+            const lineas = file.split(/\r?\n/)
+
+            lineas[LINEA_NOM_ASSIGNATURA - 1] = subject.nom
+            lineas[LINEA_CIUTAT - 1] = (ciutat == 'barcelona') ? "Enginyeria \\textsc{Física} \\ \\ \\textit{Barcelona}" : "Enginyeria \\textsc{Aeroespacial} \\ \\ \\textit{Terrassa}"
+            
+            const nuevoContenido = lineas.join('\n')
+            fs.writeFileSync(tapaPath, nuevoContenido, 'utf-8')
+
+            const dirPath = path.join(ConfigManager.getDataPath(), subject.abb)
+            const cmdCompile = `latexmk -f -gg -pdf -interaction=nonstopmode "${tapaPath}" -output-directory="${dirPath}"`
+            await execPromise(cmdCompile, {cwd: tapaDirectoryPath})
+
+            return true
+        } catch (e) {
+            return e
+        }
+    },
+
+    async mergePDFs(pdfPaths, outputPath) {
+        const mergedPdf = await PDFDocument.create()
+
+        for (const path of pdfPaths) {
+            const pdfBytes = fs.readFileSync(path);
+            const pdf = await PDFDocument.load(pdfBytes);
+            const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+            copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
+
+        const mergedPdfBytes = await mergedPdf.save();
+        fs.writeFileSync(outputPath, mergedPdfBytes);
     }
 }
 
 module.exports = TemesManager
+
+const erratesHeader = `
+\\documentclass[a4paper, 11pt]{report}
+\\usepackage[a4paper, margin=1in]{geometry}
+
+\\begin{document}
+
+\\section*{Fe d'errates}
+`
+
+const erratesFooter = `
+\\end{document}`

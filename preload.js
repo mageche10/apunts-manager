@@ -11,7 +11,10 @@ contextBridge.exposeInMainWorld('api', {
 
     getErrates: (subjectCode) => ipcRenderer.invoke('getErrates', subjectCode),
     saveErrates: (subjectCode, data) => ipcRenderer.invoke('saveErrates', subjectCode, data),
-    compileErrates: () => ipcRenderer.invoke('compileErrates')
+    compileErrates: () => ipcRenderer.invoke('compileErrates'),
+
+    generarApunts: (subject, tapa, ciutat = "barcelona") => ipcRenderer.invoke('generarApunts', subject, tapa, ciutat),
+    generarApuntsAll: (tapa, ciutat = "barcelona") => ipcRenderer.invoke('generarApuntsAll', tapa, ciutat)
 })
 
 contextBridge.exposeInMainWorld('configApi', {

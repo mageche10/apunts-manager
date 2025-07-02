@@ -1,6 +1,5 @@
 Immediat:
- -Acabar de generar el arxiu de fe d'errates
- -Comprovar funcionalitat
+ -Funcionalitat compileAll
 
 Necessari:
  -Figures a la app i a VSCode

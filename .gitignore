@@ -1,3 +1,5 @@
 node_modules/
-data/
+data/config.json
+data/erratas.json
+data/old
 .vscode

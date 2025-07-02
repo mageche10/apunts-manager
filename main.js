@@ -3,6 +3,8 @@ const path = require('path')
 
 const ConfigManager = require('./configManager')
 const TemesManager = require('./temesManager')
+const { exec } = require("child_process")
+const { error } = require("console")
 
 let win
 
@@ -53,8 +55,34 @@ async function loadMainApi() {
             return false
         } else {
             const result = await TemesManager.compileErrates(dialogResult.filePaths[0])
-            console.log(result)
             return result
+        }
+    })
+
+    ipcMain.handle('generarApunts', async (event, subject, tapa, ciutat) => {
+        const result = await TemesManager.generarAssignatura(subject, tapa, ciutat)
+        if (result == true) {
+            exec(`start "" "${ConfigManager.getDefaultOutputPath()}"`)
+        }
+        return result
+    })
+    ipcMain.handle('generarApuntsAll', async (event, tapa, ciutat) => {
+        if (!tapa) {
+            try {
+                for (const subject of ConfigManager.getSubjectsData()) {
+                    const result = await TemesManager.generarAssignatura(subject, false, ciutat)
+                    console.log(result)
+                    if (result != true) {
+                        throw result
+                    }
+                }   
+                exec(`start "" "${ConfigManager.getDefaultOutputPath()}"`)
+                return true
+            } catch (e) {
+                return e
+            }
+        } else {
+
         }
     })
 }
