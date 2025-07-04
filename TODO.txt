@@ -1,5 +1,5 @@
 Immediat:
- -Funcionalitat compileAll
+ -NavBar figures / temes
 
 Necessari:
  -Figures a la app i a VSCode

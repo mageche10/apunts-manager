@@ -252,7 +252,7 @@ const TemesManager = {
             const indexes = Array.from({ length: temes.length }, (_, i) => i + 1)
             this.editarMaster(indexes, masterPath)
 
-            const cmdCompile = `latexmk -f -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
+            const cmdCompile = `latexmk -f -gg -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
             await execPromise(cmdCompile, {cwd: dirPath})
 
             if (tapa) {

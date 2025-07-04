@@ -67,23 +67,28 @@ async function loadMainApi() {
         return result
     })
     ipcMain.handle('generarApuntsAll', async (event, tapa, ciutat) => {
-        if (!tapa) {
-            try {
-                for (const subject of ConfigManager.getSubjectsData()) {
-                    const result = await TemesManager.generarAssignatura(subject, false, ciutat)
-                    console.log(result)
-                    if (result != true) {
-                        throw result
-                    }
-                }   
-                exec(`start "" "${ConfigManager.getDefaultOutputPath()}"`)
-                return true
-            } catch (e) {
-                return e
-            }
-        } else {
+        const subjects = ConfigManager.getSubjectsData()
+        const outputDir = ConfigManager.getDefaultOutputPath()
 
+        try {
+            for (const subject of subjects) {
+                const result = await TemesManager.generarAssignatura(subject, tapa, ciutat)
+                if (result != true) {
+                    throw result
+                }
+            }
+            exec(`start "" "${outputDir}"`)
+
+            if (tapa) {
+                const paths = subjects.map(subject => path.join(outputDir,`Apunts ${subject.nom}.pdf`))
+                TemesManager.mergePDFs(paths, path.join(outputDir, 'main.pdf'))
+            }
+
+            return true
+        } catch (e) {
+            return e
         }
+
     })
 }
 

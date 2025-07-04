@@ -57,6 +57,10 @@ async function cargarAssignatura(assignatura) {
         contenido.removeEventListener("transitionend", handler)
 
         contenido.innerHTML = `
+            <div class="subject-navbar">
+                <button>Temes</button>
+                <button>Figures</button>
+            </div>
             <h1> ${assignatura.nom}</h1>
             <div id="cards-container" class="cards-container-custom"> </div>
         `
