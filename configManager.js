@@ -15,7 +15,9 @@ const configTemplate = {
     ],
     dataPath: "",
     VSEnvPath: "",
-    DefaultOutputPath: ""
+    DefaultOutputPath: "",
+    InkscapePath: "",
+    SumatraPath: "",
 }
 
 const ConfigManager = {
@@ -62,6 +64,22 @@ const ConfigManager = {
 
     saveDefaultOutputPath (path) {
         this.changeEntry("DefaultOutputPath", path)
+    },
+
+    getSumatraPath (){
+        return this.getAllConfig().SumatraPath
+    },
+
+    saveSumatraPath (path) {
+        this.changeEntry("SumatraPath", path)
+    },
+
+    getInkscapePath (){
+        return this.getAllConfig().InkscapePath
+    },
+
+    saveInkscapePath (path) {
+        this.changeEntry("InkscapePath", path)
     },
 
     getSubjectsData() {

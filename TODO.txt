@@ -1,9 +1,9 @@
 Immediat:
- -NavBar figures / temes
+ -Configuracio Inkscape, figures al VSCode
 
 Necessari:
- -Figures a la app i a VSCode
- -Arreglar modals que falten -> millorar arquitectura (posar a HTML constants)
+ -Arreglar modals que falten -> millorar arquitectura (posar a HTML constants) 
+ -Guardar les configs i extensions del entron de VSCode en algun lloc -> posar spell chekcers de catala i castella
 
 No neccesari - algun dia:
  -Color d'asignatures

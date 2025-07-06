@@ -3,7 +3,7 @@ const path = require('path')
 const readline = require('readline')
 const { exec } = require("child_process")
 const ConfigManager = require('./configManager')
-const { app } = require('electron')
+const { app, clipboard } = require('electron')
 const { PDFDocument } = require('pdf-lib');
 
 
@@ -41,6 +41,21 @@ const TemesManager = {
         } catch (err) {
             return false
         }
+    },
+
+    async getAllFigures(subjectCode) {
+        const folder = path.join(ConfigManager.getDataPath(), subjectCode, '/figures')
+        
+        const figures = []
+        const files = fs.readdirSync(folder).filter((file) => file.endsWith('.svg'))
+        
+        for (const file of files){
+            figures.push({
+                file: path.join(folder, file),
+                name: file.replaceAll('-', ' ').slice(0, -4),
+            })
+        }
+        return figures
     },
 
     async getAllTemes(subjectCode) {
@@ -149,7 +164,7 @@ const TemesManager = {
             const cmdCompile = `latexmk -pdf -interaction=nonstopmode "${masterPath}" -output-directory="${dirPath}"`
             await execPromise(cmdCompile, {cwd: dirPath})
 
-            const cmdSumatra = `"C:\\Program Files\\SumatraPDF\\SumatraPDF.exe" "${pdfPath}"`
+            const cmdSumatra = `"${ConfigManager.getSumatraPath()}" "${pdfPath}"`
             exec(cmdSumatra)
 
             return true
@@ -231,7 +246,7 @@ const TemesManager = {
             fs.unlinkSync(path.join(outputPath, "errates.log"))
             fs.unlinkSync(path.join(outputPath, "errates.fdb_latexmk"))
 
-            const cmdSumatra = `"C:\\Program Files\\SumatraPDF\\SumatraPDF.exe" "${path.join(outputPath, "errates.pdf")}"`
+            const cmdSumatra = `"${ConfigManager.getSumatraPath()}" "${path.join(outputPath, "errates.pdf")}"`
             exec(cmdSumatra)
 
             return true
@@ -311,6 +326,53 @@ const TemesManager = {
 
         const mergedPdfBytes = await mergedPdf.save();
         fs.writeFileSync(outputPath, mergedPdfBytes);
+    },
+
+    openInkscape(filePath) {
+        const inkscapePath = ConfigManager.getInkscapePath()
+
+        throw "Open Inkscape not implemented yet"
+    },
+
+    insertOnLatex(figureName) {
+        const text = `
+\\begin{figure}[ht]
+    \\centering
+    \\incfig[1]{${figureName.replaceAll(' ', '-')}}
+\\end{figure}`
+
+        clipboard.writeText(text)
+    },
+
+    createFigure(name, subjectCode) {
+        try {
+            filePath = path.join(ConfigManager.getDataPath(), subjectCode, 'figures/', `${name.replaceAll(' ', '-')}.svg`)
+            fs.closeSync(fs.openSync(filePath, 'w'))
+
+            this.insertOnLatex(name)
+            this.openInkscape(filePath)
+            return true
+        } catch (e) {
+            console.log(e)
+            return false
+        }
+    },
+
+    deleteFigure(figura, assignatura) {
+        const folder = path.join(ConfigManager.getDataPath(), assignatura.abb, '/figures')
+        
+        try {
+            const files = fs.readdirSync(folder)
+            for (const file of files) {
+                if (file.includes(figura.name.replaceAll(' ', '-'))) {
+                    fs.unlinkSync( path.join(folder, file))
+                }
+            }
+            return true
+        } catch (e) {
+            console.log(e)
+            return false
+        }
     }
 }
 

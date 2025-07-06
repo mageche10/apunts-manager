@@ -57,14 +57,13 @@ async function cargarAssignatura(assignatura) {
         contenido.removeEventListener("transitionend", handler)
 
         contenido.innerHTML = `
-            <div class="subject-navbar">
-                <button>Temes</button>
-                <button>Figures</button>
+            <div class="subject-navbar d-flex align-items-center">
+                <p class="subject-title">${assignatura.nom}</p>
+                <button id="temesButton" class="subject-nav-button active">Temes</button>
+                <button id="figuresButton" class="subject-nav-button">Figures</button>
             </div>
-            <h1> ${assignatura.nom}</h1>
             <div id="cards-container" class="cards-container-custom"> </div>
         `
-        const cardsContainer = document.getElementById("cards-container")
 
         temes = await window.api.getAllTemes(assignatura.abb)
 
@@ -78,59 +77,22 @@ async function cargarAssignatura(assignatura) {
                 }
             }, "Crear")
         } else {
-            temes.forEach((tema) => {
-                const card = createCardTema(tema, assignatura, document)
-                cardsContainer.append(card)
-            })
-
-
-            //Carrega del botó de nou tema
-            const btnAdd = document.createElement("button")
-            btnAdd.classList.add("btn", "btn-primary", "position-absolute", "btnTemaAdd", "floatingBtn")
-            btnAdd.innerHTML = `<span class="material-symbols-outlined">add</span>`
-            const index = temes.length + 1
-            btnAdd.addEventListener('click', async () => newTema(index, assignatura))
-            contenido.append(btnAdd)
-
-            //Carrega del botó errates i el seu modal
-            const btnErratas = document.createElement("button")
-            btnErratas.classList.add("btn", "btn-primary", "position-absolute", "btnErratas", "floatingBtn")
-            btnErratas.innerHTML = `<span class="material-symbols-outlined">bug_report</span>`
-            btnErratas.addEventListener('click', () => showErratasModal(assignatura.abb))
-            contenido.append(btnErratas)
-
-            contenido.insertAdjacentHTML('beforeend', HTMLconstants.modalErrates)
-            document.getElementById("saveErratesBtn").addEventListener('click', async () => {
-                const pags = Array.from(document.getElementsByName("pag")).map(i => i.value)
-                const texts = Array.from(document.getElementsByName("errata")).map(i => i.value)
-                if (!texts.includes("")) {
-                    var errates = []
-                    for (let n = 0; n < texts.length; n++) {
-                        errates.push({
-                            pag: pags[n],
-                            errada: texts[n]
-                        })
-                    }
-                    errates = errates.sort((a, b) => a.pag - b.pag)
-                    const result = await window.api.saveErrates(assignatura.abb, errates)
-
-                    if(result) {
-                        bootstrap.Modal.getOrCreateInstance(document.getElementById("modalErrates")).hide()
-                    } else {
-                        mostrarErrorToast("No s'ha pogut guardar :(")
-                    }
-                } else {
-                    mostrarErrorToast("No poden haver errates sense text descriptiu")
-                }
-            })
-
-            // Carregar botó de compilar tot i el seu modal
-            const btnCompile = document.createElement("button")
-            btnCompile.classList.add('btn', 'btn-primary', "position-absolute", "btnCompileAll", "floatingBtn")
-            btnCompile.innerHTML = `<span class="material-symbols-outlined">menu_book</span>`
-            btnCompile.addEventListener('click', () => showCompileAllModal(assignatura))
-            contenido.append(btnCompile)
+            carregarTemes(assignatura)
         }
+
+        const temesButton = document.getElementById('temesButton')
+        const figuresButton = document.getElementById('figuresButton')
+
+        temesButton.addEventListener('click', () => {
+            figuresButton.classList.remove('active')
+            carregarTemes(assignatura)
+            temesButton.classList.add('active')
+        })
+        figuresButton.addEventListener('click', () => {
+            temesButton.classList.remove('active')
+            carregarFigures(assignatura)
+            figuresButton.classList.add('active')
+        })
 
         void contenido.offsetWidth
         contenido.classList.remove("fade-out")
@@ -141,6 +103,61 @@ async function cargarAssignatura(assignatura) {
             contenido.removeEventListener("transitionend", cleanup)
         })
     })
+}
+
+async function carregarTemes(assignatura) {
+    const temes = await window.api.getAllTemes(assignatura.abb)
+    const cardsContainer = document.getElementById("cards-container")
+    cardsContainer.innerHTML = ''
+
+    temes.forEach((tema) => {
+        const card = createCardTema(tema, assignatura, document)
+        cardsContainer.append(card)
+    })
+
+
+    //Carrega del botó de nou tema
+    const btnAdd = document.createElement("button")
+    btnAdd.classList.add("btn", "btn-primary", "position-absolute", "btnTemaAdd", "floatingBtn")
+    btnAdd.innerHTML = `<span class="material-symbols-outlined">add</span>`
+    const index = temes.length + 1
+    btnAdd.addEventListener('click', async () => newTema(index, assignatura))
+    cardsContainer.append(btnAdd)
+
+    //Carrega del botó errates i el seu modal
+    const btnErratas = document.createElement("button")
+    btnErratas.classList.add("btn", "btn-primary", "position-absolute", "btnErratas", "floatingBtn")
+    btnErratas.innerHTML = `<span class="material-symbols-outlined">bug_report</span>`
+    btnErratas.addEventListener('click', () => showErratasModal(assignatura))
+    cardsContainer.insertAdjacentHTML('beforeend', HTMLconstants.modalErrates)
+    cardsContainer.append(btnErratas)
+    
+    // Carregar botó de compilar tot i el seu modal
+    const btnCompile = document.createElement("button")
+    btnCompile.classList.add('btn', 'btn-primary', "position-absolute", "btnCompileAll", "floatingBtn")
+    btnCompile.innerHTML = `<span class="material-symbols-outlined">menu_book</span>`
+    cardsContainer.insertAdjacentHTML('beforeend', HTMLconstants.modalCompileAll(assignatura))
+    btnCompile.addEventListener('click', () => showCompileAllModal(assignatura))
+    cardsContainer.append(btnCompile)
+}
+
+async function carregarFigures(assignatura) {
+    const cardsContainer = document.getElementById("cards-container")
+    cardsContainer.innerHTML = ''
+
+    const figures = await window.api.getAllFigures(assignatura.abb)
+    figures.forEach((figure) => {
+        const card = createFigureCard(figure, assignatura)
+        cardsContainer.append(card)
+    })
+
+    //Carrega del boto new figure
+    const btnNewFigure = document.createElement('button')
+    btnNewFigure.classList.add("btn", "btn-primary", "position-absolute", "btnNewFigure", "floatingBtn")
+    btnNewFigure.innerHTML = `<span class="material-symbols-outlined">add</span>`
+    cardsContainer.insertAdjacentHTML('beforeend', HTMLconstants.modalNewFigure)
+    btnNewFigure.addEventListener('click', async () => newFigure(assignatura))
+    cardsContainer.append(btnNewFigure)
 }
 
 function editarTema(index, assignatura){
@@ -185,14 +202,14 @@ async function newTema(index, assignatura){
     }
 }
 
-async function showErratasModal(subjectCode) {
+async function showErratasModal(assignatura) {
     const erratesModal = document.getElementById('modalErrates')
     const erratesModalBody = document.getElementById('modalBodyErrates')
 
     erratesModalBody.innerHTML = `<button id="addErrata" type="button" class="btn btn-primary w-100">Afegir errada</button>`
     const addErratabtn = document.getElementById('addErrata')
 
-    const errates = await window.api.getErrates(subjectCode)
+    const errates = await window.api.getErrates(assignatura.abb)
     errates.forEach(errada => {
         addErratabtn.insertAdjacentHTML('beforebegin', HTMLconstants.filaErrataHTML(errada.pag, errada.errada))
         document.querySelectorAll('.deleteErrata').forEach(e => {
@@ -211,12 +228,34 @@ async function showErratasModal(subjectCode) {
         })
     })
 
+    document.getElementById("saveErratesBtn").addEventListener('click', async () => {
+        const pags = Array.from(document.getElementsByName("pag")).map(i => i.value)
+        const texts = Array.from(document.getElementsByName("errata")).map(i => i.value)
+        if (!texts.includes("")) {
+            var errates = []
+            for (let n = 0; n < texts.length; n++) {
+                errates.push({
+                    pag: pags[n],
+                    errada: texts[n]
+                })
+            }
+            errates = errates.sort((a, b) => a.pag - b.pag)
+            const result = await window.api.saveErrates(assignatura.abb, errates)
+
+            if (result) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById("modalErrates")).hide()
+            } else {
+                mostrarErrorToast("No s'ha pogut guardar :(")
+            }
+        } else {
+            mostrarErrorToast("No poden haver errates sense text descriptiu")
+        }
+    })
+
     bootstrap.Modal.getOrCreateInstance(erratesModal).show()
 }
 
 function showCompileAllModal(assignatura) {
-    contenido.insertAdjacentHTML('beforeend', HTMLconstants.modalCompileAll(assignatura))
-
     const compileAllModal = document.getElementById('modalCompileAll')
     const body = document.getElementById('modalBodyCompileAll')
     const BSModal = bootstrap.Modal.getOrCreateInstance(compileAllModal)
@@ -237,9 +276,10 @@ function showCompileAllModal(assignatura) {
             mostrarErrorToast(`No s'ha pogut generar el pdf: ${result}`)
         }
 
-        BSModal.hide()
         compileAllModal.remove()
         BSModal.dispose()
+        const cardsContainer = document.getElementById("cards-container")
+        cardsContainer.insertAdjacentHTML('beforeend', HTMLconstants.modalCompileAll(assignatura))
     }
 
     document.getElementById('compileSubject').addEventListener('click', () => {
@@ -263,6 +303,29 @@ function showCompileAllModal(assignatura) {
         genericCompile(async (ciutat) => {
             return await window.api.generarApuntsAll(true, ciutat)
         })
+    })
+
+    BSModal.show()
+}
+
+function newFigure(assignatura) {
+    const modal = document.getElementById('modalNewFigure')
+    const BSModal = bootstrap.Modal.getOrCreateInstance(modal)
+
+    document.getElementById('modalCreateFigureButton').addEventListener('click', () => {
+        const name = document.getElementById("modalFigureNom").value
+        if (name != "") {
+            const result = window.api.createFigure(name, assignatura.abb)
+
+            if(result == false) {
+                mostrarErrorToast("No s'ha pogut crear l'arxiu")
+            }
+
+            carregarFigures(assignatura)
+            BSModal.hide()
+        } else {
+            mostrarErrorToast("El nom no pot estar buit.")
+        }
     })
 
     BSModal.show()
@@ -299,17 +362,61 @@ function createCardTema(tema, subject) {
     return card
 }
 
-async function cargarConfig(assignatures){
+function createFigureCard(figure, assignatura) {
+    const card = document.createElement("div")
+    card.classList.add('card-figure-custom', 'card-custom')
+    card.innerHTML = `<img src="${figure.file}"><p>${figure.name}</p>`
 
-    const dataPath = await window.configApi.getDataPath()
-    const VSEnvPath = await window.configApi.getVSEnvPath()
-    const DefaultOutputPath = await window.configApi.getDefaultOutputPath()
+    const options = document.createElement("div")
+    options.classList.add("options")
+
+    const btnEdit = document.createElement("a")
+    btnEdit.href = "#"
+    btnEdit.addEventListener("click", () => { window.api.openInkscape(figure.file) })
+    btnEdit.innerHTML = '<span class="material-symbols-outlined">edit</span>'
+    options.appendChild(btnEdit)
+
+    const btnInsertLatex = document.createElement("a")
+    btnInsertLatex.href = "#"
+    btnInsertLatex.addEventListener("click", () => { window.api.insertOnLatex(figure.name) })
+    btnInsertLatex.innerHTML = '<span class="material-symbols-outlined">add_circle</span>'
+    options.appendChild(btnInsertLatex)
+
+    const btnDeleteFigure = document.createElement("a")
+    btnDeleteFigure.href = "#"
+    btnDeleteFigure.addEventListener("click", () => { deleteFigure(assignatura, figure) })
+    btnDeleteFigure.innerHTML = '<span class="material-symbols-outlined">delete</span>'
+    btnDeleteFigure.classList.add("delete-card")
+    options.appendChild(btnDeleteFigure)
+
+    card.appendChild(options)
+
+    return card
+}
+
+function deleteFigure(assignatura, figure){
+    mostrarModalConfirmar("Borrar Figura", `Segur que vols borrar la figura ${figure.name}?`, async () => {
+        const result = await window.api.deleteFigure(figure, assignatura)
+        
+        if(result == false) {
+            mostrarErrorToast("Error al borrar l'arxiu")
+        } else {
+            carregarFigures(assignatura)
+        }
+    }, "Eliminar")
+}
+
+async function cargarConfig(assignatures){
     contenido.innerHTML = `
         <h1>Configuración</h1>
+        <div class="px-3">
         <div class=config-line>Editar assignatures <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalEditSubjects"> Editar </button> </div>
-        <div class=config-line> <span id="dataPathLine">Ruta a la carpeta d'apunts: ${dataPath} </span><button id="dataDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
-        <div class=config-line> <span id="VSEnvPathLine">Ruta a la carpeta de l'entorn de VS Code: ${VSEnvPath} </span><button id="VSEnvDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
-        <div class=config-line> <span id="DefaultOutputPathLine">Ruta de sortida predeterminada: ${DefaultOutputPath} </span><button id="DefaultOutputPathDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        <div class=config-line> <span id="dataPathLine">Ruta a la carpeta d'apunts: ${await window.configApi.getDataPath()} </span><button id="dataDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        <div class=config-line> <span id="VSEnvPathLine">Ruta a la carpeta de l'entorn de VS Code: ${await window.configApi.getVSEnvPath()} </span><button id="VSEnvDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        <div class=config-line> <span id="DefaultOutputPathLine">Ruta de sortida predeterminada: ${await window.configApi.getDefaultOutputPath()} </span><button id="DefaultOutputPathDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        <div class=config-line> <span id="SumatraPathLine">Ruta de Sumatra (PDF Viewer): ${await window.configApi.getSumatraPath()} </span><button id="SumatraPathDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        <div class=config-line> <span id="InkscapePathLine">Ruta de Inkscape: ${await window.configApi.getInkscapePath()} </span><button id="InkscapePathDirectorySelector" type="button" class="btn btn-primary"> Cambiar </button></div>
+        </div>
     `
 
     contenido.insertAdjacentHTML('beforeend', HTMLconstants.modalEditSubjects)
@@ -335,6 +442,22 @@ async function cargarConfig(assignatures){
         if (path != null) {
             window.configApi.saveDefaultOutputPath(path)
             document.getElementById("DefaultOutputPathLine").innerText = `Ruta de sortida predeterminada: ${path}`
+        }
+    })
+
+    document.getElementById('SumatraPathDirectorySelector').addEventListener('click', async () => {
+        const path = await window.configApi.openExeSelector(await window.configApi.getSumatraPath())
+        if (path != null) {
+            window.configApi.saveSumatraPath(path)
+            document.getElementById('SumatraPathLine').innerText = `Ruta de Sumatra (PDF Viewer): ${path}`
+        }
+    })
+
+    document.getElementById('InkscapePathDirectorySelector').addEventListener('click', async () => {
+        const path = await window.configApi.openExeSelector(await window.configApi.getInkscapePath())
+        if (path != null) {
+            window.configApi.saveInkscapePath(path)
+            document.getElementById('InkscapePathLine').innerText = `Ruta de Inkscape: ${path}`
         }
     })
 
@@ -531,4 +654,23 @@ const HTMLconstants = {
                 </div>
             </div>
         </div>`},
+    
+        modalNewFigure: `<div id="modalNewFigure" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nova figura</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            <input id="modalFigureNom" name="Nom" type="text" class="form-control" value="">
+                            <label>Nom</label>
+                        </div>
+                        <button id="modalCreateFigureButton" class="btn btn-primary w-100 mt-2">Crear</button>
+                    </div>
+                </div>
+            </div>
+        </div>`
+        
 }

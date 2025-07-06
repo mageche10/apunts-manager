@@ -33,10 +33,8 @@ app.whenReady().then(async () => {
 })
 
 async function loadMainApi() {
-    ipcMain.handle('getAllTemes', async (event, data) => {
-        const temes = await TemesManager.getAllTemes(data)
-        return temes
-    })
+    ipcMain.handle('getAllTemes', async (event, data) => { return await TemesManager.getAllTemes(data) })
+    ipcMain.handle('getAllFigures', async (event, subjectCode) => { return await TemesManager.getAllFigures(subjectCode)} )
     ipcMain.handle('initSubject', (event, subjectCode) => { return TemesManager.initTemaFiles(subjectCode) })
 
     ipcMain.handle('editarTema', (event, index, subjectAbb) => TemesManager.editarTema(index, subjectAbb))
@@ -90,6 +88,11 @@ async function loadMainApi() {
         }
 
     })
+
+    ipcMain.handle('openInkscape', (event, filePath) => { return TemesManager.openInkscape(filePath) })
+    ipcMain.handle('insertOnLatex', (event, figureName) => { return TemesManager.insertOnLatex(figureName) })
+    ipcMain.handle('createFigure', (event, name, subjectCode) => { return TemesManager.createFigure(name, subjectCode) })
+    ipcMain.handle('deleteFigure', (event, figure, assignatura) => { return TemesManager.deleteFigure(figure, assignatura)})
 }
 
 async function loadConfigApi() {
@@ -105,9 +108,22 @@ async function loadConfigApi() {
     ipcMain.handle('saveVSEnvPath', (event, data) => ConfigManager.saveVSEnvPath(data))
     ipcMain.handle('getDefaultOutputPath', () => ConfigManager.getDefaultOutputPath())
     ipcMain.handle('saveDefaultOutputPath', (event, data) => ConfigManager.saveDefaultOutputPath(data))
+    ipcMain.handle('getSumatraPath', () => ConfigManager.getSumatraPath())
+    ipcMain.handle('saveSumatraPath', (event, data) => ConfigManager.saveSumatraPath(data))
+    ipcMain.handle('getInkscapePath', () => ConfigManager.getInkscapePath())
+    ipcMain.handle('saveInkscapePath', (event, data) => ConfigManager.saveInkscapePath(data))
 
     ipcMain.handle('openDirectorySelector', async (event, initialPath) => {
         const result = await dialog.showOpenDialog(win, {properties: ['openDirectory', 'createDirectory'], defaultPath: initialPath})
+        if (result.canceled) {
+            return null
+        } else {
+            return result.filePaths[0]
+        }
+    })
+
+    ipcMain.handle('openExeSelector', async (event, initialPath) => {
+        const result = await dialog.showOpenDialog(win, {properties: ['openFile'], defaultPath: initialPath, filters: [{name: "Executables", extensions: ['exe']}] })
         if (result.canceled) {
             return null
         } else {

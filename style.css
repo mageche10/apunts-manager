@@ -108,12 +108,41 @@ body {
   height: 95vh;
 }
 
+.subject-title {
+  padding: 10px;
+  text-transform: uppercase;
+  font-size: 18;
+  letter-spacing: 3px;
+  background-color: #242424;
+  color: white;
+  height: 100%;
+  margin: 0;
+}
+
 .cards-container-custom {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: start;
   padding: 10px;
+  margin-left: 10px;
+  overflow-y: auto;
+}
+
+.card-figure-custom img{
+  width: 100%;
+  height: 200px;
+  object-fit: fill;
+  background-color: white;
+}
+
+.card-figure-custom p{
+  text-transform: capitalize;
+  margin: 10px;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .card-custom {
@@ -123,6 +152,15 @@ body {
   min-width: 200px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+}
+
+.card-figure-custom {
+  padding: 0;
+}
+
+.card-figure-custom .options {
+  margin-left: 10px;
+  margin-bottom: 10px;
 }
 
 .card-custom:hover {
@@ -165,15 +203,16 @@ body {
 
 .main-content-custom {
   flex: 1;
-  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
   background-color: #F4F4F4;
   max-width: 100%;
-  overflow-y: auto;
   transition: opacity 0.3s ease;
 }
 
 .main-content-custom h1 {
   font-weight: 600;
+  margin-left: 20px;
   letter-spacing: 1px;
 }
 
@@ -184,7 +223,11 @@ body {
   border-radius: 12px;
 }
 
-.btnTemaAdd {
+.btnNewFigure {
+  right: 20px;
+}
+
+.btnTemaAdd{
   right: 20px;
 }
 
@@ -202,8 +245,28 @@ body {
 
 .subject-navbar {
   width: 100%;
-  height: 50px;
+  height: 45px;
   background-color: #5A5A5A;
+}
+
+.subject-nav-button {
+  background-color: transparent;
+  border: none;
+  text-transform: uppercase;
+  font-size: 16;
+  letter-spacing: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  height: 100%;
+  color: #c4c4c4;
+}
+
+.subject-nav-button:hover {
+  background-color: #3b3b3b;
+}
+
+.subject-navbar .active {
+  background-color: #3b3b3b;  
 }
 
 .config-line {
