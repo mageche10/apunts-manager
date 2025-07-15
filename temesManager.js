@@ -331,7 +331,8 @@ const TemesManager = {
     openInkscape(filePath) {
         const inkscapePath = ConfigManager.getInkscapePath()
 
-        throw "Open Inkscape not implemented yet"
+        const cmd = `"${inkscapePath}" "${filePath}"`
+        exec(cmd)
     },
 
     insertOnLatex(figureName) {
@@ -346,8 +347,11 @@ const TemesManager = {
 
     createFigure(name, subjectCode) {
         try {
+            const svgMinContent =  `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"/>`
+
             filePath = path.join(ConfigManager.getDataPath(), subjectCode, 'figures/', `${name.replaceAll(' ', '-')}.svg`)
-            fs.closeSync(fs.openSync(filePath, 'w'))
+            fs.writeFileSync(filePath, svgMinContent)
 
             this.insertOnLatex(name)
             this.openInkscape(filePath)

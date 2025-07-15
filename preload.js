@@ -40,3 +40,7 @@ contextBridge.exposeInMainWorld('configApi', {
     openDirectorySelector: (initialPath) => ipcRenderer.invoke('openDirectorySelector', initialPath),
     openExeSelector: (initialPath) => ipcRenderer.invoke('openExeSelector', initialPath),
 })
+
+contextBridge.exposeInMainWorld('rendererApi', {
+    newFigureShortcut: (callback) => ipcRenderer.on('new-figure-shortcut', (event, data) => { callback(data) })
+})

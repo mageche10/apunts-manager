@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron/main")
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut } = require("electron/main")
 const path = require('path')
 
 const ConfigManager = require('./configManager')
@@ -29,8 +29,23 @@ app.whenReady().then(async () => {
     await loadConfigApi()
     await loadMainApi()
 
+    registerGlobalShortcuts()
+
     createWindow()
 })
+
+app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
+})
+
+function registerGlobalShortcuts() {
+    globalShortcut.register('Control+Alt+F', () => {
+        win.focus()
+
+        win.webContents.send('new-figure-shortcut')
+
+    })
+}
 
 async function loadMainApi() {
     ipcMain.handle('getAllTemes', async (event, data) => { return await TemesManager.getAllTemes(data) })

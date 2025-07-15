@@ -1,4 +1,5 @@
 const contenido = document.getElementById('contenido');
+let currentSubject = null
 
 //Carrega de la funcionalitat de la barra de navegació
 document.addEventListener('DOMContentLoaded', async () => {
@@ -52,6 +53,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 })
 
 async function cargarAssignatura(assignatura) {
+    currentSubject = assignatura
+
     contenido.classList.add("fade-out")
     contenido.addEventListener("transitionend", async function handler() {
         contenido.removeEventListener("transitionend", handler)
@@ -308,6 +311,15 @@ function showCompileAllModal(assignatura) {
     BSModal.show()
 }
 
+window.rendererApi.newFigureShortcut(async () => {
+    if (currentSubject != null) {
+        await carregarFigures(currentSubject)
+        newFigure(currentSubject)
+    } else {
+        mostrarErrorToast("Selecciona una assignatura primer!")
+    }
+})
+
 function newFigure(assignatura) {
     const modal = document.getElementById('modalNewFigure')
     const BSModal = bootstrap.Modal.getOrCreateInstance(modal)
@@ -378,7 +390,10 @@ function createFigureCard(figure, assignatura) {
 
     const btnInsertLatex = document.createElement("a")
     btnInsertLatex.href = "#"
-    btnInsertLatex.addEventListener("click", () => { window.api.insertOnLatex(figure.name) })
+    btnInsertLatex.addEventListener("click", () => { 
+        window.api.insertOnLatex(figure.name) 
+        mostrarPrimaryToast("Codi de Latex copiat al portapapers.")
+    })
     btnInsertLatex.innerHTML = '<span class="material-symbols-outlined">add_circle</span>'
     options.appendChild(btnInsertLatex)
 
@@ -407,6 +422,8 @@ function deleteFigure(assignatura, figure){
 }
 
 async function cargarConfig(assignatures){
+    currentSubject = null
+
     contenido.innerHTML = `
         <h1>Configuración</h1>
         <div class="px-3">
@@ -553,6 +570,12 @@ function mostrarErrorToast(text) {
     const errorToast = document.getElementById("errorToast")
     document.getElementById("errorToastText").innerText = text
     bootstrap.Toast.getOrCreateInstance(errorToast).show()
+}
+
+function mostrarPrimaryToast(text){
+    const primaryToast = document.getElementById("primaryToast")
+    document.getElementById("primaryToastText").innerText = text
+    bootstrap.Toast.getOrCreateInstance(primaryToast).show()
 }
 
 const HTMLconstants = {
