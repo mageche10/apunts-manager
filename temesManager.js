@@ -8,7 +8,7 @@ const { PDFDocument } = require('pdf-lib');
 
 
 const erratasPath = app.isPackaged ? path.join(process.resourcesPath, 'erratas.json') : path.join(__dirname, '/data/erratas.json')
-const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "master.tex") : path.join(__dirname, "master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
+const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "master.tex") : path.join(__dirname, "/data/master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
 const tapaDirectoryPath = app.isPackaged ? process.resourcesPath : path.join(__dirname, '/data/')
 const tapaPath = app.isPackaged ? path.join(process.resourcesPath, "tapa.tex") : path.join(__dirname, "/data/tapa.tex")
 
@@ -36,7 +36,6 @@ const TemesManager = {
             fs.mkdirSync(dirPath)
             fs.mkdirSync(path.join(dirPath, "figures"))
 
-            // En algun moment, selector de colors => estaria be al menu posar el color de la asignatura corresponent
             fs.copyFileSync(masterTemplatePath, path.join(dirPath, "master.tex"))
         } catch (err) {
             return false

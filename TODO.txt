@@ -1,9 +1,8 @@
 Immediat:
- -Configuracio Inkscape, figures al VSCode
+ -Color d'assignatures
+ -Reordenament de temes
 
 Necessari:
+ -Unificar estil UI
  -Arreglar modals que falten -> millorar arquitectura (posar a HTML constants) 
  -Guardar les configs i extensions del entron de VSCode en algun lloc -> posar spell chekcers de catala i castella
-
-No neccesari - algun dia:
- -Color d'asignatures
