@@ -1,9 +1,11 @@
 import { mostrarErrorToast, mostrarModalConfirmar, mostrarPrimaryToast } from "./util.js"
 
 export async function carregarFigures(assignatura) {
-    const temesButton = document.getElementById('temesButton')
+    const subjectNavButtons = document.getElementsByClassName('subject-nav-button')
+    Array.from(subjectNavButtons).forEach((button) => {
+        button.classList.remove('active')
+    })
     const figuresButton = document.getElementById('figuresButton')
-    temesButton.classList.remove('active')
     figuresButton.classList.add('active')
 
     const cardsContainer = document.getElementById("cards-container")

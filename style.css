@@ -126,6 +126,7 @@ body {
   justify-content: start;
   padding: 10px;
   margin-left: 10px;
+  padding-bottom: 85px;
   overflow-y: auto;
 }
 
@@ -237,6 +238,10 @@ body {
 
 .btnCompileAll {
   right: 160px;
+}
+
+.btnColors {
+  right: 230px;
 }
 
 .floatingBtn .material-symbols-outlined {

@@ -108,6 +108,9 @@ async function loadMainApi() {
     ipcMain.handle('insertOnLatex', (event, figureName) => { return TemesManager.insertOnLatex(figureName) })
     ipcMain.handle('createFigure', (event, name, subjectCode) => { return TemesManager.createFigure(name, subjectCode) })
     ipcMain.handle('deleteFigure', (event, figure, assignatura) => { return TemesManager.deleteFigure(figure, assignatura)})
+
+    ipcMain.handle('getAssignaturaColors', async (event, subjectCode) => { return await TemesManager.getAssignaturaColors(subjectCode) })
+    ipcMain.handle('setSubjectColor', async (event, subjectCode, color) => { return await TemesManager.setSubjectColor(subjectCode, color) })
 }
 
 async function loadConfigApi() {

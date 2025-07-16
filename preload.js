@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld('api', {
     insertOnLatex: (figureName) => ipcRenderer.invoke('insertOnLatex', figureName),
     createFigure: (name, subjectCode) => ipcRenderer.invoke('createFigure', name, subjectCode),
     deleteFigure: (figure, assignatura) => ipcRenderer.invoke('deleteFigure', figure, assignatura),
+
+    getAssignaturaColors: (subjectCode) => ipcRenderer.invoke('getAssignaturaColors', subjectCode),
+    setSubjectColor: (subjectCode, color) => ipcRenderer.invoke('setSubjectColor', subjectCode, color)
 })
 
 contextBridge.exposeInMainWorld('configApi', {

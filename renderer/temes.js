@@ -2,9 +2,11 @@ import { mostrarErrorToast, mostrarModalConfirmar } from "./util.js"
 import { cargarAssignatura } from "./assignatures.js"
 
 export async function carregarTemes(assignatura) {
+    const subjectNavButtons = document.getElementsByClassName('subject-nav-button')
+    Array.from(subjectNavButtons).forEach((button) => {
+        button.classList.remove('active')
+    })
     const temesButton = document.getElementById('temesButton')
-    const figuresButton = document.getElementById('figuresButton')
-    figuresButton.classList.remove('active')
     temesButton.classList.add('active')
 
     const temes = await window.api.getAllTemes(assignatura.abb)
@@ -40,6 +42,14 @@ export async function carregarTemes(assignatura) {
     cardsContainer.insertAdjacentHTML('beforeend', modalCompileAll(assignatura))
     btnCompile.addEventListener('click', () => showCompileAllModal(assignatura))
     cardsContainer.append(btnCompile)
+
+    //Carregar botó de colors i el seu modal
+    const btnColors = document.createElement("button")
+    btnColors.classList.add('btn', 'btn-primary', "position-absolute", "btnColors", "floatingBtn")
+    btnColors.innerHTML = `<span class="material-symbols-outlined">palette</span>`
+    cardsContainer.insertAdjacentHTML('beforeend', modalColors())
+    btnColors.addEventListener('click', () => showColorsModal(assignatura))
+    cardsContainer.append(btnColors)
 }
 
 function editarTema(index, assignatura){
@@ -221,6 +231,51 @@ function showCompileAllModal(assignatura) {
     BSModal.show()
 }
 
+async function showColorsModal(assignatura){
+    const modal = document.getElementById('modalColors')
+    const BSModal = bootstrap.Modal.getOrCreateInstance(modal)
+
+    const selectColor = document.getElementById('selectColor')
+    selectColor.innerHTML = `<option value="" selected disabled>Selecciona un color</option>`
+
+
+    const colorMap = getColorMap()
+    colorMap.forEach((color) => {
+        const option = document.createElement('option')
+        option.value = color.name
+        option.textContent = color.name
+        selectColor.appendChild(option)
+    })
+
+    selectColor.addEventListener('change', () => {
+        const selectedColor = colorMap.find(color => color.name === selectColor.value)
+
+        const primaryDot = document.getElementById('colorPrimaryDot')
+        const secondaryDot = document.getElementById('colorSecondaryDot')
+
+        primaryDot.style.backgroundColor = `#${selectedColor.primary.toString(16)}`
+        secondaryDot.style.backgroundColor = `#${selectedColor.secondary.toString(16)}`
+    })
+
+    const subjectColor = await window.api.getAssignaturaColors(assignatura.abb)
+    const colorIndex = colorMap.findIndex(color => color.primary == subjectColor.primary)
+    selectColor.selectedIndex = colorIndex + 1
+    selectColor.dispatchEvent(new Event('change'))
+
+    const saveColorsBtn = document.getElementById('saveColorsBtn')
+    saveColorsBtn.addEventListener('click', () => {
+        if (selectColor.selectedIndex != 0){
+
+            const result = window.api.setSubjectColor(assignatura.abb, colorMap[selectColor.selectedIndex - 1])
+            result ? BSModal.hide() : mostrarErrorToast("No s'ha pogut guardar")
+        } else {
+            mostrarErrorToast("Selecciona un color primer.")
+        }
+    })
+
+    BSModal.show()
+}
+
 function modalErratesHTML() {
     return `<div id="modalErrates" class="modal fade modal-lg" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -285,3 +340,47 @@ function modalCompileAll(assignatura) {
                 </div>
             </div>
         </div>`}
+
+function modalColors() {
+    return `<div id="modalColors" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Colors d'assignatura</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBodyCompileAll">
+                        ATENCIÓ: de moment no está molt desenvolupat el tema dels colors. El primary i secundari (encara que no és del tot precisa la nomenclatura) és per les definicions. Els teoremes i lleis tenen color lila per defecte. Altres boxes que no s'utilitzen mai tenen altres colors hard-coded. S'hauria de fer alguna cosa.
+                        
+                        <div class="row mt-3">
+                            <div class="col-8"><div class="form-floating">
+                                <select class="form-select" id="selectColor">
+                                    <option value="" selected disabled>Selecciona un color</option>
+                                </select>
+                                <label for="selectColor">Color principal</label>
+                            </div></div>
+                            <div class="col-2"><span id="colorPrimaryDot" style="width: 50px; height: 50px; background-color: transparent; display: inline-block; border-radius: 50%;"></span></div>
+                            <div class="col-2"><span id="colorSecondaryDot" style="width: 50px; height: 50px; background-color: transparent; display: inline-block; border-radius: 50%;"></span></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Descartar</button>
+                        <button type="button" class="btn btn-primary" id="saveColorsBtn">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>`
+}
+
+// ATENCIÖ: Aixó s'ha de posar al arxiu de config i agafar d'allí amb codi
+function getColorMap() {
+    const colorMap = [
+        { name: "Taronja", primary: 0xFFF1E6, secondary: 0xFF9233 },
+        { name: "Vermell", primary: 0xFFE6E6, secondary: 0xFF3333 },
+        { name: "Violeta", primary: 0xF0E6FF, secondary: 0xA366FF },
+        { name: "Groc", primary: 0xFFFFE6, secondary: 0xFFD333 },
+        { name: "Blau", primary: 0xE6F2FF, secondary: 0x3399FF },
+        { name: "Verd", primary: 0xDCF5E5, secondary: 0x58C75F },
+    ]
+    return colorMap
+}

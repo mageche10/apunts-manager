@@ -1,6 +1,7 @@
 Immediat:
  -Color d'assignatures
  -Reordenament de temes
+ -Falta testing del refactor
 
 Necessari:
  -Unificar estil UI

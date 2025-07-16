@@ -91,7 +91,7 @@ const TemesManager = {
 
         this.editarMaster(indexes, masterPath)
 
-        const cmd = `code "${dirPath}" --goto "${filePath}" "${masterPath}" --user-data-dir=${userDataDir} --extensions-dir=${extensionsDir}`
+        const cmd = `code "${dirPath}" --goto "${filePath}" "${masterPath}" --user-data-dir="${userDataDir}" --extensions-dir="${extensionsDir}"`
         exec(cmd)
     },
 
@@ -371,6 +371,42 @@ const TemesManager = {
                     fs.unlinkSync( path.join(folder, file))
                 }
             }
+            return true
+        } catch (e) {
+            console.log(e)
+            return false
+        }
+    },
+
+    async getAssignaturaColors(subjectCode) {
+        const masterPath = path.join(ConfigManager.getDataPath(), subjectCode, 'master.tex')
+        let tex = fs.readFileSync(masterPath, 'utf-8')
+        
+        const regexPrimary = /(\\definecolor\{primary\}\{HTML\}\{)(.*?)(\})/;
+        const regexSecondary = /(\\definecolor\{secondary\}\{HTML\}\{)(.*?)(\})/;
+
+        const primaryColor = tex.match(regexPrimary)[2]
+        const secondaryColor = tex.match(regexSecondary)[2]
+
+        return {
+            primary: primaryColor ? parseInt(primaryColor, 16) : 0x000000, // Default to black if not found
+            secondary: secondaryColor ? parseInt(secondaryColor, 16) : 0x000000, // Default to black if not found
+            name: "Unknown"
+        }
+    },
+
+    async setSubjectColor(subjectCode, color) {
+        try {
+            const masterPath = path.join(ConfigManager.getDataPath(), subjectCode, 'master.tex')
+            let tex = fs.readFileSync(masterPath, 'utf-8')
+        
+            const regexPrimary = /(\\definecolor\{primary\}\{HTML\}\{)(.*?)(\})/;
+            const regexSecondary = /(\\definecolor\{secondary\}\{HTML\}\{)(.*?)(\})/;
+
+            tex = tex.replace(regexPrimary, `$1${color.primary.toString(16).toUpperCase()}$3`)
+            tex = tex.replace(regexSecondary, `$1${color.secondary.toString(16).toUpperCase()}$3`)
+
+            fs.writeFileSync(masterPath, tex, 'utf-8')
             return true
         } catch (e) {
             console.log(e)
