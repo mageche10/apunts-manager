@@ -50,6 +50,14 @@ export async function carregarTemes(assignatura) {
     cardsContainer.insertAdjacentHTML('beforeend', modalColors())
     btnColors.addEventListener('click', () => showColorsModal(assignatura))
     cardsContainer.append(btnColors)
+
+    // Carregar el botó de reordenament
+    const btnReorder = document.createElement("button")
+    btnReorder.classList.add('btn', 'btn-primary', "position-absolute", "btnReorder", "floatingBtn")
+    btnReorder.innerHTML = `<span class="material-symbols-outlined">swap_vert</span>`
+    cardsContainer.insertAdjacentHTML('beforeend', modalReorder())
+    btnReorder.addEventListener('click', () => showReorderModal(temes, assignatura))
+    cardsContainer.append(btnReorder)
 }
 
 function editarTema(index, assignatura){
@@ -82,8 +90,6 @@ function borrarTema(index, assignatura){
     }, "Eliminar")
 }
 
-function moreOptionsTema(){}
-
 async function newTema(index, assignatura){
     const result = window.api.newTema(index, assignatura)
 
@@ -105,7 +111,6 @@ function createCardTema(tema, subject) {
     const rels = [
         [editarTema, '<span class="material-symbols-outlined">edit</span>'],
         [verTema, `<div class="optLoadingDiv" id="verTemaDiv${tema.index}"><span class="material-symbols-outlined">visibility</span></div>`],
-        [moreOptionsTema, '<span class="material-symbols-outlined">more_horiz</span>'],
         [borrarTema, '<span class="material-symbols-outlined">delete</span>']
     ]
     const elements = []
@@ -118,7 +123,7 @@ function createCardTema(tema, subject) {
         options.appendChild(btn)
         elements.push(btn)
     })
-    elements[3].classList.add("delete-card")
+    elements[2].classList.add("delete-card")
 
     card.appendChild(options)
 
@@ -128,6 +133,7 @@ function createCardTema(tema, subject) {
 async function showErratasModal(assignatura) {
     const erratesModal = document.getElementById('modalErrates')
     const erratesModalBody = document.getElementById('modalBodyErrates')
+    const modal = bootstrap.Modal.getOrCreateInstance(erratesModal)
 
     erratesModalBody.innerHTML = `<button id="addErrata" type="button" class="btn btn-primary w-100">Afegir errada</button>`
     const addErratabtn = document.getElementById('addErrata')
@@ -151,7 +157,9 @@ async function showErratasModal(assignatura) {
         })
     })
 
-    document.getElementById("saveErratesBtn").addEventListener('click', async () => {
+    document.getElementById("saveErratesBtn").onclick = async () => {
+        console.log("hola")
+
         const pags = Array.from(document.getElementsByName("pag")).map(i => i.value)
         const texts = Array.from(document.getElementsByName("errata")).map(i => i.value)
         if (!texts.includes("")) {
@@ -166,16 +174,16 @@ async function showErratasModal(assignatura) {
             const result = await window.api.saveErrates(assignatura.abb, errates)
 
             if (result) {
-                bootstrap.Modal.getOrCreateInstance(document.getElementById("modalErrates")).hide()
+                modal.hide()
             } else {
                 mostrarErrorToast("No s'ha pogut guardar :(")
             }
         } else {
             mostrarErrorToast("No poden haver errates sense text descriptiu")
         }
-    })
+    }
 
-    bootstrap.Modal.getOrCreateInstance(erratesModal).show()
+    modal.show()
 }
 
 function showCompileAllModal(assignatura) {
@@ -239,7 +247,7 @@ async function showColorsModal(assignatura){
     selectColor.innerHTML = `<option value="" selected disabled>Selecciona un color</option>`
 
 
-    const colorMap = getColorMap()
+    const colorMap = await window.configApi.getColorMap()
     colorMap.forEach((color) => {
         const option = document.createElement('option')
         option.value = color.name
@@ -263,7 +271,7 @@ async function showColorsModal(assignatura){
     selectColor.dispatchEvent(new Event('change'))
 
     const saveColorsBtn = document.getElementById('saveColorsBtn')
-    saveColorsBtn.addEventListener('click', () => {
+    saveColorsBtn.onclick = () => {
         if (selectColor.selectedIndex != 0){
 
             const result = window.api.setSubjectColor(assignatura.abb, colorMap[selectColor.selectedIndex - 1])
@@ -271,7 +279,43 @@ async function showColorsModal(assignatura){
         } else {
             mostrarErrorToast("Selecciona un color primer.")
         }
+    }
+
+    BSModal.show()
+}
+
+function showReorderModal(temes, assignatura) {
+    const modal = document.getElementById('modalReorder')
+    const BSModal = bootstrap.Modal.getOrCreateInstance(modal)
+
+    const reorderList = document.getElementById('reorderList')
+    reorderList.innerHTML = ''
+
+    temes.forEach((tema) => {
+        const listItem = document.createElement('li')
+        listItem.classList.add('list-group-item')
+        listItem.innerHTML = `${tema.index}. ${tema.name}`
+        reorderList.appendChild(listItem)
     })
+
+    Sortable.create(reorderList, {
+        animation: 150,
+    })
+
+    document.getElementById('saveReorderBtn').onclick = async () => {
+        const newOrder = Array.from(reorderList.children).map((item) => {
+            return item.innerHTML.split('.')[0].trim()
+        })
+
+        const result = await window.api.reorderTemes(assignatura.abb, newOrder)
+
+        if (result) {
+            BSModal.hide()
+            cargarAssignatura(assignatura)
+        } else {
+            mostrarErrorToast("No s'ha pogut reordenar els temes.")
+        }
+    }
 
     BSModal.show()
 }
@@ -372,15 +416,25 @@ function modalColors() {
         </div>`
 }
 
-// ATENCIÖ: Aixó s'ha de posar al arxiu de config i agafar d'allí amb codi
-function getColorMap() {
-    const colorMap = [
-        { name: "Taronja", primary: 0xFFF1E6, secondary: 0xFF9233 },
-        { name: "Vermell", primary: 0xFFE6E6, secondary: 0xFF3333 },
-        { name: "Violeta", primary: 0xF0E6FF, secondary: 0xA366FF },
-        { name: "Groc", primary: 0xFFFFE6, secondary: 0xFFD333 },
-        { name: "Blau", primary: 0xE6F2FF, secondary: 0x3399FF },
-        { name: "Verd", primary: 0xDCF5E5, secondary: 0x58C75F },
-    ]
-    return colorMap
+function modalReorder() {
+    return `<div id="modalReorder" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reordenar Apunts</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBodyReorder">
+                        <p>Arrosega els temes per reordenar-los:</p>
+                        <ul id="reorderList" class="list-group">
+                            <!-- List items will be dynamically added here -->
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Descartar</button>
+                        <button type="button" class="btn btn-primary" id="saveReorderBtn">Reordenar</button>
+                    </div>
+                </div>
+            </div>
+        </div>`
 }

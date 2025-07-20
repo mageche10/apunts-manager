@@ -23,7 +23,9 @@ contextBridge.exposeInMainWorld('api', {
     deleteFigure: (figure, assignatura) => ipcRenderer.invoke('deleteFigure', figure, assignatura),
 
     getAssignaturaColors: (subjectCode) => ipcRenderer.invoke('getAssignaturaColors', subjectCode),
-    setSubjectColor: (subjectCode, color) => ipcRenderer.invoke('setSubjectColor', subjectCode, color)
+    setSubjectColor: (subjectCode, color) => ipcRenderer.invoke('setSubjectColor', subjectCode, color),
+
+    reorderTemes: (subjectCode, newOrder) => ipcRenderer.invoke('reorderTemes', subjectCode, newOrder)
 })
 
 contextBridge.exposeInMainWorld('configApi', {
@@ -42,6 +44,8 @@ contextBridge.exposeInMainWorld('configApi', {
 
     openDirectorySelector: (initialPath) => ipcRenderer.invoke('openDirectorySelector', initialPath),
     openExeSelector: (initialPath) => ipcRenderer.invoke('openExeSelector', initialPath),
+
+    getColorMap: () => ipcRenderer.invoke('getColorMap'),
 })
 
 contextBridge.exposeInMainWorld('rendererApi', {

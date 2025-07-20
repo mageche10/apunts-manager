@@ -244,6 +244,10 @@ body {
   right: 230px;
 }
 
+.btnReorder {
+  right: 300px;
+}
+
 .floatingBtn .material-symbols-outlined {
   font-size: 42;
 }

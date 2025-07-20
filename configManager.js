@@ -18,6 +18,14 @@ const configTemplate = {
     DefaultOutputPath: "",
     InkscapePath: "",
     SumatraPath: "",
+    colorMap: [
+        { name: "Taronja", primary: "0xFFF1E6", secondary: "0xFF9233" },
+        { name: "Vermell", primary: "0xFFE6E6", secondary: "0xFF3333" },
+        { name: "Violeta", primary: "0xF0E6FF", secondary: "0xA366FF" },
+        { name: "Groc", primary: "0xFFFFE6", secondary: "0xFFD333" },
+        { name: "Blau", primary: "0xE6F2FF", secondary: "0x3399FF" },
+        { name: "Verd", primary: "0xDCF5E5", secondary: "0x58C75F" }
+  ]
 }
 
 const ConfigManager = {
@@ -96,6 +104,18 @@ const ConfigManager = {
         } catch (err) {
             return false
         }
+    },
+
+    getColorMap() {
+        const obj = this.getAllConfig()
+        const colorMap = obj.colorMap
+        return colorMap.map(color => {
+            return{
+                name: color.name,
+                primary: parseInt(color.primary, 16),
+                secondary: parseInt(color.secondary, 16)
+            }
+        })
     }
 }
 

@@ -412,6 +412,33 @@ const TemesManager = {
             console.log(e)
             return false
         }
+    },
+
+    async reorderTemes(subjectCode, newOrder) {
+        try {
+            const dirPath = path.join(ConfigManager.getDataPath(), subjectCode)
+
+            const tmpsFiles = []
+            newOrder.forEach((oldIndex, newIndex) => {
+                if (oldIndex != newIndex + 1){
+                    const oldPath = path.join(dirPath, `tema${this.pad(oldIndex)}.tex`)
+                    const tmpPath = path.join(dirPath, `tema${this.pad(newIndex + 1)}.tex_tmp`)
+                    tmpsFiles.push(tmpPath)
+                    fs.renameSync(oldPath, tmpPath)
+                }
+            })
+
+            tmpsFiles.forEach((tmpPath) => {
+                const newPath = tmpPath.replace('_tmp', '')
+                fs.renameSync(tmpPath, newPath)
+            })
+
+            return true
+        }
+        catch (e) {
+            console.log(e)
+            return false
+        }
     }
 }
 

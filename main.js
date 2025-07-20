@@ -111,6 +111,8 @@ async function loadMainApi() {
 
     ipcMain.handle('getAssignaturaColors', async (event, subjectCode) => { return await TemesManager.getAssignaturaColors(subjectCode) })
     ipcMain.handle('setSubjectColor', async (event, subjectCode, color) => { return await TemesManager.setSubjectColor(subjectCode, color) })
+
+    ipcMain.handle('reorderTemes', async (event, subjectCode, newOrder) => { return await TemesManager.reorderTemes(subjectCode, newOrder) })
 }
 
 async function loadConfigApi() {
@@ -148,4 +150,6 @@ async function loadConfigApi() {
             return result.filePaths[0]
         }
     })
+
+    ipcMain.handle('getColorMap', () => ConfigManager.getColorMap())
 }
