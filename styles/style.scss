@@ -1,3 +1,7 @@
+$primary: #2852a7;
+
+@import "../node_modules/bootstrap/scss/bootstrap";
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -42,7 +46,7 @@ body {
   width: 285px;
   display: flex;
   flex-direction: column;
-  background-color: #2852a7;
+  background-color: var(--bs-primary); 
   color: #ffffff;
   height: 100vh;
 }
@@ -195,11 +199,11 @@ body {
 
 .card-custom .options a:hover {
   color: #ffffff;
-  background-color: #2852a7;
+  background-color: var(--bs-primary) /* #2852a7*/
 }
 
 .card-custom .options .delete-card:hover{
-  background-color: brown;
+  background-color: var(--bs-danger); /* brown; */
 }
 
 .main-content-custom {

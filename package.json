@@ -10,7 +10,9 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
-    "electron": "^36.3.2"
+    "bootstrap": "^5.3.7",
+    "electron": "^36.3.2",
+    "sass": "^1.89.2"
   },
   "dependencies": {
     "pdf-lib": "^1.17.1"
