@@ -4,14 +4,14 @@ const path = require('path')
 const ConfigManager = require('./configManager')
 const TemesManager = require('./temesManager')
 const { exec } = require("child_process")
-const { error } = require("console")
 
 let win
 
-const createWindow = () => {
+const createMainWindow = (width = 1100, height = 700) => {
     win = new BrowserWindow({
-        width: 1100,
-        height: 700,
+        width: width,
+        height: height,
+        show: false, 
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -24,6 +24,17 @@ const createWindow = () => {
 }
 
 app.whenReady().then(async () => {
+    //Create Splash Screen
+    const splash = new BrowserWindow({
+        width: 400,
+        height: 500,
+        frame: false,
+        transparent: false,
+        alwaysOnTop: true,
+    })
+    splash.loadFile('./splashScreen/splash.html')
+    splash.center()
+
     await ConfigManager.checkFile();
     
     await loadConfigApi()
@@ -31,7 +42,12 @@ app.whenReady().then(async () => {
 
     registerGlobalShortcuts()
 
-    createWindow()
+    setTimeout(() => {
+        splash.close()
+        win.show()
+    }, 1000) 
+
+    createMainWindow()
 })
 
 app.on('will-quit', () => {
@@ -43,7 +59,6 @@ function registerGlobalShortcuts() {
         win.focus()
 
         win.webContents.send('new-figure-shortcut')
-
     })
 }
 
@@ -72,20 +87,20 @@ async function loadMainApi() {
         }
     })
 
-    ipcMain.handle('generarApunts', async (event, subject, tapa, ciutat) => {
-        const result = await TemesManager.generarAssignatura(subject, tapa, ciutat)
+    ipcMain.handle('generarApunts', async (event, subject, tapa, quatri, ciutat) => {
+        const result = await TemesManager.generarAssignatura(subject, tapa, quatri, ciutat)
         if (result == true) {
             exec(`start "" "${ConfigManager.getDefaultOutputPath()}"`)
         }
         return result
     })
-    ipcMain.handle('generarApuntsAll', async (event, tapa, ciutat) => {
+    ipcMain.handle('generarApuntsAll', async (event, tapa, quatri, ciutat) => {
         const subjects = ConfigManager.getSubjectsData()
         const outputDir = ConfigManager.getDefaultOutputPath()
 
         try {
             for (const subject of subjects) {
-                const result = await TemesManager.generarAssignatura(subject, tapa, ciutat)
+                const result = await TemesManager.generarAssignatura(subject, tapa, quatri, ciutat)
                 if (result != true) {
                     throw result
                 }

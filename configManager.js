@@ -4,7 +4,7 @@ const path = require('path')
 
 //TODO: marcar el config como extrafiles en electron builder
 //No es la millor manera utilitzar resourcesPath pero prefereixo aixo que no tenir la config en el roaming perduda
-const configPath = app.isPackaged ? path.join(process.resourcesPath, 'config.json') : path.join(__dirname, '/data/config.json') 
+const configPath = app.isPackaged ? path.join(process.resourcesPath, '/data/config.json') : path.join(__dirname, '/data/config.json') 
 
 const configTemplate = {
     assignatures: [

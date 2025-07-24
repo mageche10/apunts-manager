@@ -4,33 +4,18 @@ export function mostrarErrorToast(text) {
     bootstrap.Toast.getOrCreateInstance(errorToast).show()
 }
 
-export function mostrarModalSeleccio(titol, cos, eventSi, btnConfirmText) {
+export function mostrarModalSeleccio(titol, cos, eventConfirm, btnConfirmText, isDanger = false) {
     const modal = document.getElementById("modalSeleccio")
     document.getElementById("titleModalSeleccio").innerText = titol
     document.getElementById("bodyModalSeleccio").innerHTML = `<p>${cos}</p>`
 
-    const oldButton = document.getElementById("btnSeleccioModalConfirmar");    
-    const newButton = oldButton.cloneNode(true); 
-    oldButton.parentNode.replaceChild(newButton, oldButton); 
+    const btn = document.getElementById("btnSeleccioModalConfirmar");    
+    btn.innerText = btnConfirmText
+    btn.classList = isDanger ? "btn btn-danger" : "btn btn-primary"
+    btn.removeEventListener('click', btn.onclick)
 
-    newButton.innerText = btnConfirmText
-    newButton.addEventListener('click', eventSi)
-    
-    bootstrap.Modal.getOrCreateInstance(modal).show()
-}
+    btn.onclick = eventConfirm
 
-export function mostrarModalConfirmar(titol, cos, eventDanger, btnDangerText) {
-    const modal = document.getElementById("modalConfirmarAbortar")
-    document.getElementById("titleModalConfirmar").innerText = titol
-    document.getElementById("bodyModalConfirmar").innerHTML = `<p>${cos}</p>`
-
-    const oldButton = document.getElementById("btnDangerModalConfirmar");    
-    const newButton = oldButton.cloneNode(true); 
-    oldButton.parentNode.replaceChild(newButton, oldButton); 
-
-    newButton.innerText = btnDangerText
-    newButton.addEventListener('click', eventDanger)
-    
     bootstrap.Modal.getOrCreateInstance(modal).show()
 }
 

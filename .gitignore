@@ -1,5 +1,4 @@
 node_modules/
-data/config.json
-data/erratas.json
-data/old
+data/
 .vscode
+dist/

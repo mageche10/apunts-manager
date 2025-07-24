@@ -1,17 +1,48 @@
 {
   "name": "apunts-manager",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.mageche.noteshub",
+    "productName": "Notes Hub",
+    "files": [
+      "main.js",
+      "package.json",
+      "renderer/**/*",
+      "styles/**/*",
+      "data/**/*",
+      "configManager.js",
+      "preload.js",
+      "temesManager.js",
+      "index.html",
+      "splashScreen/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "data"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "extraResources": [
+      {
+        "from": "data/",
+        "to": "data/"
+      }
+    ]
   },
   "author": "mageche",
   "license": "MIT",
-  "description": "",
+  "description": "Aplicació personalitzada per a la gestió d'apunts",
   "devDependencies": {
     "bootstrap": "^5.3.7",
     "electron": "^36.3.2",
+    "electron-builder": "^26.0.12",
     "sass": "^1.89.2"
   },
   "dependencies": {

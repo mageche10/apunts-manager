@@ -7,10 +7,10 @@ const { app, clipboard } = require('electron')
 const { PDFDocument } = require('pdf-lib');
 
 
-const erratasPath = app.isPackaged ? path.join(process.resourcesPath, 'erratas.json') : path.join(__dirname, '/data/erratas.json')
-const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "master.tex") : path.join(__dirname, "/data/master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
-const tapaDirectoryPath = app.isPackaged ? process.resourcesPath : path.join(__dirname, '/data/')
-const tapaPath = app.isPackaged ? path.join(process.resourcesPath, "tapa.tex") : path.join(__dirname, "/data/tapa.tex")
+const erratasPath = app.isPackaged ? path.join(process.resourcesPath, '/data/erratas.json') : path.join(__dirname, '/data/erratas.json')
+const masterTemplatePath = app.isPackaged ? path.join(process.resourcesPath, "/data/master.tex") : path.join(__dirname, "/data/master.tex") // TODO: marcar com extrafiles en electron builder el master,tex
+const tapaDirectoryPath = app.isPackaged ? path.join(process.resourcesPath, "/data/") : path.join(__dirname, '/data/')
+const tapaPath = app.isPackaged ? path.join(process.resourcesPath, "/data/tapa.tex") : path.join(__dirname, "/data/tapa.tex")
 
 const execPromise = (cmd, opts = {}) => {
     return new Promise((resolve, reject) => {
@@ -255,7 +255,7 @@ const TemesManager = {
         }
     },
 
-    async generarAssignatura(subject, tapa, ciutat) {
+    async generarAssignatura(subject, tapa, quatri, ciutat) {
         try {
             const dirPath = path.join(ConfigManager.getDataPath(), subject.abb)
             const masterPath = path.join(dirPath, "master.tex")
@@ -270,7 +270,7 @@ const TemesManager = {
             await execPromise(cmdCompile, {cwd: dirPath})
 
             if (tapa) {
-                const resultTapa = await this.editarCompilarTapa(subject, ciutat)
+                const resultTapa = await this.editarCompilarTapa(subject, quatri, ciutat)
                 if (resultTapa) {
                     const tapaPath = path.join(dirPath, 'tapa.pdf')
 
@@ -292,6 +292,7 @@ const TemesManager = {
     async editarCompilarTapa(subject, ciutat) {
         const LINEA_NOM_ASSIGNATURA = 29
         const LINEA_CIUTAT = 47
+        const LINEA_NOM_QUATRIMESTRE = 56
 
         try {
             const file = fs.readFileSync(tapaPath, 'utf-8')
@@ -299,6 +300,7 @@ const TemesManager = {
 
             lineas[LINEA_NOM_ASSIGNATURA - 1] = subject.nom
             lineas[LINEA_CIUTAT - 1] = (ciutat == 'barcelona') ? "Enginyeria \\textsc{Física} \\ \\ \\textit{Barcelona}" : "Enginyeria \\textsc{Aeroespacial} \\ \\ \\textit{Terrassa}"
+            lineas[LINEA_NOM_QUATRIMESTRE - 1] = `\{\\large ${quatri}\}\\ \\[2cm] `
             
             const nuevoContenido = lineas.join('\n')
             fs.writeFileSync(tapaPath, nuevoContenido, 'utf-8')

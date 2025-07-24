@@ -1,7 +1,6 @@
 Immediat:
- -Splash screen
+ -Testing compilacio tapa quadrimestre
 
 Necessari:
- -Unificar estil UI
- -Arreglar modals que falten -> millorar arquitectura (posar a HTML constants) 
+ -Escollir colors UI
  -Guardar les configs i extensions del entron de VSCode en algun lloc -> posar spell chekcers de catala i castella

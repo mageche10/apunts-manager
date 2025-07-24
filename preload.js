@@ -14,8 +14,8 @@ contextBridge.exposeInMainWorld('api', {
     saveErrates: (subjectCode, data) => ipcRenderer.invoke('saveErrates', subjectCode, data),
     compileErrates: () => ipcRenderer.invoke('compileErrates'),
 
-    generarApunts: (subject, tapa, ciutat = "barcelona") => ipcRenderer.invoke('generarApunts', subject, tapa, ciutat),
-    generarApuntsAll: (tapa, ciutat = "barcelona") => ipcRenderer.invoke('generarApuntsAll', tapa, ciutat),
+    generarApunts: (subject, tapa, quatri, ciutat = "barcelona") => ipcRenderer.invoke('generarApunts', subject, tapa, quatri, ciutat),
+    generarApuntsAll: (tapa, quatri, ciutat = "barcelona") => ipcRenderer.invoke('generarApuntsAll', tapa, quatri, ciutat),
 
     openInkscape: (filePath) => ipcRenderer.invoke('openInkscape', filePath),
     insertOnLatex: (figureName) => ipcRenderer.invoke('insertOnLatex', figureName),

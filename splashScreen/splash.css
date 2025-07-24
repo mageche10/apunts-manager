@@ -1,0 +1,29 @@
+body {
+    background-color: #1b1c26
+}
+
+h1 {
+    position: absolute;
+    top: 30%;
+    color: #9feaf9;
+    text-align: center;
+    width: 100%;
+}
+
+.progress{
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    width: 0%;
+    height: 100%;
+    transition: width ease-in-out;
+    transition-duration: 700ms;
+    background-color: #9feaf9;
+}

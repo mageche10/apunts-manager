@@ -1,4 +1,4 @@
-import { mostrarErrorToast, mostrarModalConfirmar, mostrarPrimaryToast } from "./util.js"
+import { mostrarErrorToast, mostrarModalSeleccio, mostrarPrimaryToast } from "./util.js"
 
 export async function carregarFigures(assignatura) {
     const subjectNavButtons = document.getElementsByClassName('subject-nav-button')
@@ -27,7 +27,7 @@ export async function carregarFigures(assignatura) {
 }
 
 function deleteFigure(assignatura, figure) {
-    mostrarModalConfirmar("Borrar Figura", `Segur que vols borrar la figura ${figure.name}?`, async () => {
+    mostrarModalSeleccio("Borrar Figura", `Segur que vols borrar la figura ${figure.name}?`, async () => {
         const result = await window.api.deleteFigure(figure, assignatura)
 
         if (result == false) {
@@ -35,7 +35,7 @@ function deleteFigure(assignatura, figure) {
         } else {
             carregarFigures(assignatura)
         }
-    }, "Eliminar")
+    }, "Eliminar", true)
 }
 
 function createFigureCard(figure, assignatura) {

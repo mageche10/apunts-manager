@@ -1,4 +1,4 @@
-import { mostrarErrorToast, mostrarModalConfirmar } from "./util.js"
+import { mostrarErrorToast, mostrarModalSeleccio } from "./util.js"
 import { cargarAssignatura } from "./assignatures.js"
 
 export async function carregarTemes(assignatura) {
@@ -79,7 +79,7 @@ async function verTema(index, assignatura){
 }
 
 function borrarTema(index, assignatura){
-    mostrarModalConfirmar("Borrar tema", `Segur que vols borrar el Tema ${index}?`, async () => {
+    mostrarModalSeleccio("Borrar tema", `Segur que vols borrar el Tema ${index}?`, async () => {
         const result = await window.api.borrarTema(index, assignatura.abb)
         
         if(result == false) {
@@ -87,7 +87,7 @@ function borrarTema(index, assignatura){
         } else {
             cargarAssignatura(assignatura)
         }
-    }, "Eliminar")
+    }, "Eliminar", true)
 }
 
 async function newTema(index, assignatura){
@@ -194,14 +194,17 @@ function showCompileAllModal(assignatura) {
     async function genericCompile (specificCompile) {
         document.getElementById("btnModalCompileClose").remove()
 
-        const ciutat = document.getElementsByName('ciutat')[0].checked ? "barcelona" : "terrassa"
+        const selectQuatri = document.getElementById('selectQuatri')
+        const quatri = selectQuatri.options[selectQuatri.selectedIndex].text
+        const ciutat = (selectQuatri.value - 1) % 4 < 2 ? "barcelona" : "terrassa"
+        console.log(ciutat)
 
         body.innerHTML = `<div class="spinner-border" style="width: 4rem; height: 4rem;" role="status">
             <span class="sr-only"></span>
         </div>`
         body.classList.add('d-flex', 'justify-content-center', 'align-items-center')
         
-        const result = await specificCompile(ciutat)
+        const result = await specificCompile(quatri, ciutat)
 
         if (result != true) {
             mostrarErrorToast(`No s'ha pogut generar el pdf: ${result}`)
@@ -219,7 +222,7 @@ function showCompileAllModal(assignatura) {
         }) 
     })
     document.getElementById('compileSubjectCover').addEventListener('click', () => {
-        genericCompile(async (ciutat) => {
+        genericCompile(async (quatri, ciutat) => {
             return await window.api.generarApunts(assignatura, true, ciutat)
         })
     })
@@ -231,7 +234,7 @@ function showCompileAllModal(assignatura) {
         })
     })
     document.getElementById('compileAllCover').addEventListener('click', () => {
-        genericCompile(async (ciutat) => {
+        genericCompile(async (quatri, ciutat) => {
             return await window.api.generarApuntsAll(true, ciutat)
         })
     })
@@ -370,15 +373,20 @@ function modalCompileAll(assignatura) {
                         <button id="compileAll" type="button" class="btn btn-primary w-100 mb-2">Generar apunts - Totes les assignatures</button>
                         <button id="compileAllCover" type="button" class="btn btn-primary w-100 mb-2">Generar tots els apunts junts, pdf final.</button>
 
-                        <div class="d-flex flex-row justify-content-between px-2 mt-2">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="ciutat" id="ciutat1" value="barcelona" checked>
-                            <label class="form-check-label" for="exampleRadios1">Barcelona - Física</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="ciutat" id="ciutat2" value="terrassa" checked>
-                            <label class="form-check-label" for="exampleRadios1">Terrassa - Aeros</label>
-                        </div>
+                        <div class="mt-2 w-100">
+                            <div class="form-floating">
+                                <select class="form-select" id="selectQuatri">
+                                    <option value="1">Primer Quadrimestre - Tardor 24-25</option>
+                                    <option value="2">Segon Quadrimestre - Primavera 24-25</option>
+                                    <option value="3">Tercer Quadrimestre - Tardor 25-26</option>
+                                    <option value="4">Quart Quadrimestre - Primavera 25-26</option>
+                                    <option value="5">Cinquè Quadrimestre - Tardor 26-27</option>
+                                    <option value="6">Sisè Quadrimestre - Primavera 26-27</option>
+                                    <option value="7">Setè Quadrimestre - Tardor 27-28</option>
+                                    <option value="8">Vuitè Quadrimestre - Primavera 27-28</option>
+                                </select>
+                                <label for="selectQuatri">Quadrimestre</label>
+                            </div>
                         </div>
                     </div>
                 </div>
