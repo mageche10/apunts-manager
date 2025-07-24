@@ -27,11 +27,12 @@
       "buildResources": "data"
     },
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "./note-hub-icon.ico"
     },
     "extraResources": [
       {
-        "from": "data/",
+        "from": "data_clean/",
         "to": "data/"
       }
     ]
