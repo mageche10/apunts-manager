@@ -1,6 +1,0 @@
-Immediat:
- -Testing compilacio tapa quadrimestre
-
-Necessari:
- -Escollir colors UI
- -Guardar les configs i extensions del entron de VSCode en algun lloc -> posar spell chekcers de catala i castella
